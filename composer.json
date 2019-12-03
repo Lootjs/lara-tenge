@@ -1,6 +1,6 @@
 {
     "name": "loot/lara-tenge",
-    "description": "Laravel package, for managing payments and handling kaz payment gateways",
+    "description": "Laravel package for managing payments and handling kaz payment gateways",
     "license": "MIT",
     "authors": [
         {
@@ -9,5 +9,29 @@
         }
     ],
     "minimum-stability": "dev",
-    "require": {}
+    "require": {
+        "php": ">=7.0",
+        "illuminate/support": "^5.4|^6.0"
+    },
+    "require-dev": {
+        "orchestra/testbench": "~3.7"
+    },
+    "autoload": {
+        "psr-4": {
+            "Loot\\Tenge\\": "src"
+        }
+    },
+    "scripts": {
+        "test": "vendor/bin/phpunit"
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Loot\\Tenge\\ServiceProvider"
+            ],
+            "aliases": {
+                "Tenge": "Loot\\Tenge\\TengeFacade"
+            }
+        }
+    }
 }

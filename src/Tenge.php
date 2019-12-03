@@ -1,0 +1,26 @@
+<?php
+declare(strict_types=1);
+
+namespace Loot\Tenge;
+
+use Loot\Tenge\Drivers\DriverInterface;
+
+class Tenge {
+    /**
+     * Set payment driver
+     *
+     * @throws \Exception
+     * @param string $driver
+     *
+     * @return DriverInterface
+     */
+    public static function with(string $driver) {
+        if (! array_key_exists($driver, config('tenge.drivers', []))) {
+            throw new \Exception(sprintf('Driver [%s] not found', $driver));
+        }
+
+        $driverHandler = config('tenge.drivers.class');
+
+        return new $driverHandler;
+    }
+}
