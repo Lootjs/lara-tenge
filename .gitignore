@@ -1,0 +1,5 @@
+*.log
+.Trashes
+*.idea
+.idea
+vendor
