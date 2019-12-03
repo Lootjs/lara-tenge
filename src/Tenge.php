@@ -14,7 +14,7 @@ class Tenge {
      *
      * @return DriverInterface
      */
-    public static function with(string $driver) {
+    public static function with(string $driver): DriverInterface {
         if (! array_key_exists($driver, config('tenge.drivers', []))) {
             throw new \Exception(sprintf('Driver [%s] not found', $driver));
         }
