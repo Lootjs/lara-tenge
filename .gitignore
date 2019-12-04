@@ -3,3 +3,4 @@
 *.idea
 .idea
 vendor
+.phpunit.result.cache

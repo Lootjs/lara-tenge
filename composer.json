@@ -2,13 +2,13 @@
     "name": "loot/lara-tenge",
     "description": "Laravel package for managing payments and handling kaz payment gateways",
     "license": "MIT",
+    "version": "1.0",
     "authors": [
         {
             "name": "Loot",
             "email": "77028277827@yandex.ru"
         }
     ],
-    "minimum-stability": "dev",
     "require": {
         "php": ">=7.0",
         "illuminate/support": "^5.4|^6.0"

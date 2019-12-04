@@ -3,7 +3,7 @@ declare(strict_types=1);
 
 namespace Loot\Tenge\Drivers;
 
-class CyberplatDriver implements DriverInterface {
+class CyberplatDriver extends BaseDriver implements DriverInterface {
 
     public function createPayment() {
 

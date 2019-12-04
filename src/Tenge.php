@@ -19,8 +19,8 @@ class Tenge {
             throw new \Exception(sprintf('Driver [%s] not found', $driver));
         }
 
-        $driverHandler = config('tenge.drivers.class');
+        $configs = config('tenge.drivers')[$driver];
 
-        return new $driverHandler;
+        return new $configs['handler']($configs);
     }
 }

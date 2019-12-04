@@ -3,7 +3,7 @@ declare(strict_types=1);
 
 namespace Loot\Tenge\Drivers;
 
-class KaspiDriver implements DriverInterface {
+class KaspiDriver extends BaseDriver  implements DriverInterface {
 
     public function createPayment() {
 
