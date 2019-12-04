@@ -1,4 +1,4 @@
-# Lara-Tenge [Work-In-Progress] [![Build Status](https://travis-ci.org/Lootjs/lara-tenge.svg?branch=dev)](https://travis-ci.org/Lootjs/lara-tenge)
+# Lara-Tenge [Work-In-Progress] [![Build Status](https://travis-ci.org/Lootjs/lara-tenge.svg?branch=dev)](https://travis-ci.org/Lootjs/lara-tenge) ![GitHub repo size](https://img.shields.io/github/repo-size/lootjs/lara-tenge)
 Пакет для поддержки системы оплат. Поддерживается Laravel 5.8, php 7.0
 ## Todo
 - [ ] Epay
