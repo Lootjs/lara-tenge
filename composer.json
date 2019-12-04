@@ -28,10 +28,7 @@
         "laravel": {
             "providers": [
                 "Loot\\Tenge\\ServiceProvider"
-            ],
-            "aliases": {
-                "Tenge": "Loot\\Tenge\\TengeFacade"
-            }
+            ]
         }
     }
 }

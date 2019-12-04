@@ -15,6 +15,12 @@ class ServiceProvider extends BaseServiceProvider
         $this->publishes([
             __DIR__ . '/../config/tenge.php' => config_path('tenge.php'),
         ]);
+        $this->mergeConfigFrom(__DIR__.'/../config/tenge.php', 'tenge');
+        $this->loadRoutesFrom(__DIR__.'/../routes/web.php');
+        $this->loadMigrationsFrom(__DIR__.'/../database/migrations');
+        $this->publishes([
+            __DIR__.'/../assets/' => storage_path('tenge'),
+        ], 'secrets');
     }
 
     /**
