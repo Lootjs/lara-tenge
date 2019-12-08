@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace Loot\Tenge;
 
 use Loot\Tenge\Drivers\DriverInterface;
+use Loot\Tenge\Loggers\LoggerInterface;
 
 class Tenge {
     /**
@@ -22,5 +23,13 @@ class Tenge {
         $configs = config('tenge.drivers')[$driver];
 
         return new $configs['handler']($configs);
+    }
+
+    /**
+     * Logging payment lifecycle
+     */
+
+    public static function log($data) {
+        return resolve('tange_logger')->log($data);
     }
 }

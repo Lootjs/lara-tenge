@@ -11,14 +11,12 @@
     ],
     "require": {
         "php": ">=7.0",
-        "illuminate/support": "^5.4|^6.0"
-    },
-    "require-dev": {
-        "orchestra/testbench": "~3.7"
+        "guzzlehttp/guzzle": "^6.4"
     },
     "autoload": {
         "psr-4": {
-            "Loot\\Tenge\\": "src"
+            "Loot\\Tenge\\": "src",
+            "GuzzleHttp\\Client\\": "vendor/guzzlehttp/guzzle/src"
         }
     },
     "scripts": {

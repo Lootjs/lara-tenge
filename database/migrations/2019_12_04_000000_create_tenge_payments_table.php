@@ -18,9 +18,11 @@ class CreateTengePaymentsTable extends Migration
             $table->integer('payment_id')->unique();
             $table->integer('amount');
             $table->integer('status');
+            $table->string('driver');
             //$table->integer('user_id');
         });
     }
+
     /**
      * Reverse the migrations.
      *

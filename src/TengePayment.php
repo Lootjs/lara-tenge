@@ -1,9 +1,9 @@
 <?php
-namespace Appstract\Options;
+namespace Loot\Tenge;
 
 use Illuminate\Database\Eloquent\Model;
 
-class TengePayments extends Model
+class TengePayment extends Model
 {
     const STATUS_RECEIVED = 0;
     const STATUS_SETTLED = 1;
