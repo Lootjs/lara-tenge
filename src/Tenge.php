@@ -30,6 +30,6 @@ class Tenge {
      */
 
     public static function log($data) {
-        return resolve('tange_logger')->log($data);
+        return resolve('tenge_logger')->log($data);
     }
 }

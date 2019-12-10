@@ -3,27 +3,33 @@
 namespace Loot\Tenge\Actions;
 
 use Illuminate\Http\Request;
-use Loot\Tenge\{
-    Tenge,
-    TengePayment
+use Loot\Tenge\TengePayment;
+use Loot\Tenge\Actions\Pipes\ {
+    ApprovePaymentPipe,
+    CheckPaymentExistsPipe,
+    PaymentStatusIsReceivedPipe
 };
-class ApproveAction {
-    public function __invoke($paymentId, Request $request) {
-        try {
-            $payment = TengePayment::where('payment_id', $paymentId)->first();
 
-            if (empty($payment)) {
-                throw new \Exception('payment ' . $paymentId . ' not found');
-            }
+class ApproveAction extends AbstractAction {
+    public function handler($paymentId, Request $request) {
+        $payment = TengePayment::where('payment_id', $paymentId)->first();
+        $pipes = [
+            CheckPaymentExistsPipe::class,
+            PaymentStatusIsReceivedPipe::class,
+        ];
 
-            Tenge::with($payment->driver)->approvePayment($paymentId, $request);
-
-        } catch (\Exception $exception) {
-            Tenge::log($exception->getMessage());
-
-            return $exception->getMessage();
+        if (config('tenge.hooks.beforeApprove')) {
+            $hook = config('tenge.hooks.beforeApprove');
+            $pipes[] = new $hook($request);
         }
 
-        return true;
+        $pipes[] = new ApprovePaymentPipe($request);
+
+        return app(\Illuminate\Pipeline\Pipeline::class)
+            ->send($payment)
+            ->through($pipes)
+            ->then(function ($response) {
+                return $response;
+            });
     }
 }

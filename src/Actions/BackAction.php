@@ -1,5 +1,4 @@
 <?php
-
 namespace Loot\Tenge\Actions;
 
 class BackAction {

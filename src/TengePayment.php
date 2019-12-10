@@ -16,4 +16,10 @@ class TengePayment extends Model
         'amount',
         'status',
     ];
+
+    public function setApproveStatus() {
+        $this->update([
+            'status' => self::STATUS_SETTLED,
+        ]);
+    }
 }
