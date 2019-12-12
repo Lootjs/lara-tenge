@@ -10,17 +10,29 @@ use Illuminate\Support\Fluent;
 use Loot\Tenge\Drivers\ {
     BaseDriver, DriverInterface
 };
+use Loot\Tenge\Tenge;
 use Loot\Tenge\TengePayment;
 
 class EpayDriver extends BaseDriver implements DriverInterface {
 
-    public function createPayment($paymentId, $amount) {
+    protected function getURL() {
+        return $this->config['action_url'][config('tenge.environment')];
+    }
+
+    /**
+     * @param mixed ...$args
+     * @return Fluent
+     */
+    public function createPayment(...$args) {
+        [$paymentId, $amount, $title] = $args;
+        Tenge::log('before create payment '. $paymentId, $paymentId);
+
         (new Client)->post($this->getURL(), [
             'form_params' => [
                 'Signed_Order_B64' => (new KKBsign)->process_request($paymentId, $this->config['currency_id'], $amount, $this->config),
                 'paymentID' => $paymentId,
                 'Language' => 'rus',
-                'BackLink' => route('tenge.backlink', ['paymentId' => $paymentId], true),
+                'BackLink' => route('tenge.backlink', [], true),
                 'FailureBackLink' => route('tenge.backlink', ['paymentId' => $paymentId], true),
                 'PostLink' => route('tenge.approvelink', ['paymentId' => $paymentId], true),
                 'FailurePostLink' => route('tenge.faillink', ['paymentId' => $paymentId], true),
@@ -39,17 +51,60 @@ class EpayDriver extends BaseDriver implements DriverInterface {
 
     }
 
-    public function approvePayment($paymentId, Request $request) {
-        /**
-         * @var $payment TengePayment
-         */
-        $payment = TengePayment::where('payment_id', $paymentId)->first();
-        $payment->setApproveStatus();
+    /**
+     * @param TengePayment $payment
+     * @param Request $request
+     * @return int|string
+     */
+    public function approvePayment($payment, Request $request) {
+        //$payment = TengePayment::where('payment_id', $result['ORDER_ORDER_ID'])->first();
+        Tenge::log('before approve payment '. $payment->id, $request->all());
+
+        if (! $request->filled('response')) {
+            $message = 'response field is empty';
+            Tenge::log($message, $request->all());
+
+            return $message;
+        }
+
+        $error = 0;
+        $result = (new KKBsign)->process_response($request->input('response'), $this->config);
+
+        if (is_array($result)) {
+            if (in_array('ERROR', $result)) {
+                if ($result['ERROR_TYPE'] == 'ERROR') {
+                    $error = 'System error:' . $result['ERROR'];
+                } elseif ($result["ERROR_TYPE"] == "system") {
+                    $error = "Bank system error > Code: '" . $result["ERROR_CODE"] . "' Text: '" . $result["ERROR_CHARDATA"] . "' Time: '" . $result["ERROR_TIME"] . "' Order_ID: '" . $result["RESPONSE_ORDER_ID"] . "'";
+                } elseif ($result["ERROR_TYPE"] == "auth") {
+                    $error = "Bank system user autentication error > Code: '" . $result["ERROR_CODE"] . "' Text: '" . $result["ERROR_CHARDATA"] . "' Time: '" . $result["ERROR_TIME"] . "' Order_ID: '" . $result["RESPONSE_ORDER_ID"] . "'";
+                }
+            }
+        } else {
+            $error = "System error" . $result;
+        }
+
+        if ($result['PAYMENT_MERCHANT_ID'] != '98800841') {
+            $error = 'merchant id doesnt match ' . $result['PAYMENT_MERCHANT_ID'];
+        } else if ($result['PAYMENT_RESPONSE_CODE'] != '00') {
+            $error = 'Bad response';
+        } else if ($result['PAYMENT_AMOUNT'] != $payment->amount) {
+            $error = 'Other amount';
+        }
+
+        if ($error) {
+            $prefix = 'Payment ['.$payment->id.']: ';
+            Tenge::log($prefix . $error, $result);
+
+            return 'Error: '.$error;
+        }
+
+        if ($hook = config('tenge.hooks.approve.after_validation')) {
+            call_user_func($hook, $payment->payment_id, $request);
+        }
+
+        Tenge::log('payment ' . $payment->id. ' was approved', $payment);
 
         return 0;
-    }
-
-    protected function getURL() {
-        return $this->config['action_url'][config('tenge.environment')];
     }
 }

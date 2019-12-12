@@ -17,20 +17,12 @@ class ApproveAction extends Action {
         $pipes = [
             new CheckPaymentExistsPipe($paymentId),
             PaymentStatusIsReceivedPipe::class,
+            new ApprovePaymentPipe($request),
         ];
-
-        if (config('tenge.hooks.beforeApprove')) {
-            $hook = config('tenge.hooks.beforeApprove');
-            $pipes[] = new $hook($request);
-        }
-
-        $pipes[] = new ApprovePaymentPipe($request);
 
         return app(Pipeline::class)
             ->send($payment)
             ->through($pipes)
-            ->then(function($response) {
-                return $response;
-            });
+            ->thenReturn();
     }
 }

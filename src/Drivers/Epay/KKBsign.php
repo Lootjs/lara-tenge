@@ -293,7 +293,7 @@ class KKBsign {
         if ($b64){return base64_encode($xml);} else {return $xml;};
     }
 // -----------------------------------------------------------------------------------------------
-    public static function process_response($response,$config_file) {
+    public static function process_response($response,$config) {
         // -----===++[Process incoming XML to array of values with verifying electronic sign]++===-----
         // variables:
         // $response - string: XML response from bank
@@ -393,11 +393,6 @@ class KKBsign {
         // $data['TAG_PAYMENT'] = "PAYMENT"
         // $data['TAG_RESULTS'] = "RESULTS"
         // $data['CHECKRESULT'] = "[SIGN_GOOD]"
-
-
-        if(is_file($config_file)){
-            $config=parse_ini_file($config_file,0);
-        } else {$data["ERROR"] = "Config not exist";$data["ERROR_TYPE"] = "ERROR"; return $data;};
 
         $xml_parser = new xml();
         $result = $xml_parser->parse($response);

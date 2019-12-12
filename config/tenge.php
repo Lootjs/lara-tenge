@@ -86,5 +86,11 @@ return [
         'cyberplat' => [
             'handler' => \Loot\Tenge\Drivers\CyberplatDriver::class,
         ],
-    ]
+    ],
+    'hooks' => [
+        'approve' => [
+            //'after_validation' => [\App\Http\Controllers\PaymentController::class, 'approvePayment'],
+            'after_validation' => [],
+        ],
+    ],
 ];

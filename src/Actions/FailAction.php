@@ -1,8 +1,11 @@
 <?php
 namespace Loot\Tenge\Actions;
 
-class FailAction {
-    public function __invoke() {
+use Illuminate\Http\Request;
+use Loot\Tenge\Tenge;
 
+class FailAction extends Action {
+    public function handler($paymentId, Request $request) {
+        Tenge::log('payment ' . $paymentId. ' is failed', $paymentId);
     }
 }

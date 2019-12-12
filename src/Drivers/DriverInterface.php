@@ -5,7 +5,7 @@ namespace Loot\Tenge\Drivers;
 use Illuminate\Http\Request;
 
 interface DriverInterface {
-    public function createPayment($paymentId, $amount);
+    public function createPayment(...$args);
 
     public function cancelPayment();
 
