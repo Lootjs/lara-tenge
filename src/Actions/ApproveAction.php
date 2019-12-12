@@ -3,6 +3,7 @@
 namespace Loot\Tenge\Actions;
 
 use Illuminate\Http\Request;
+use Illuminate\Pipeline\Pipeline;
 use Loot\Tenge\TengePayment;
 use Loot\Tenge\Actions\Pipes\ {
     ApprovePaymentPipe,
@@ -10,11 +11,11 @@ use Loot\Tenge\Actions\Pipes\ {
     PaymentStatusIsReceivedPipe
 };
 
-class ApproveAction extends AbstractAction {
+class ApproveAction extends Action {
     public function handler($paymentId, Request $request) {
         $payment = TengePayment::where('payment_id', $paymentId)->first();
         $pipes = [
-            CheckPaymentExistsPipe::class,
+            new CheckPaymentExistsPipe($paymentId),
             PaymentStatusIsReceivedPipe::class,
         ];
 
@@ -25,10 +26,10 @@ class ApproveAction extends AbstractAction {
 
         $pipes[] = new ApprovePaymentPipe($request);
 
-        return app(\Illuminate\Pipeline\Pipeline::class)
+        return app(Pipeline::class)
             ->send($payment)
             ->through($pipes)
-            ->then(function ($response) {
+            ->then(function($response) {
                 return $response;
             });
     }

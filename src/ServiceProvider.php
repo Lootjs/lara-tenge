@@ -2,7 +2,6 @@
 namespace Loot\Tenge;
 
 use Illuminate\Support\ServiceProvider as BaseServiceProvider;
-use Loot\Tenge\Loggers\Logger;
 
 class ServiceProvider extends BaseServiceProvider
 {
@@ -22,10 +21,6 @@ class ServiceProvider extends BaseServiceProvider
         $this->publishes([
             __DIR__.'/../assets/' => storage_path('tenge'),
         ], 'secrets');
-        $this->app->singleton('tenge_logger', function () {
-            return (new Logger(config('tenge.logger')))
-                ->getManager();
-        });
     }
 
     /**
@@ -34,5 +29,8 @@ class ServiceProvider extends BaseServiceProvider
     public function register()
     {
         $this->app->bind('tenge', Tenge::class);
+        $this->app->singleton('tenge_logger', function () {
+            return (new Logger)->getManager();
+        });
     }
 }

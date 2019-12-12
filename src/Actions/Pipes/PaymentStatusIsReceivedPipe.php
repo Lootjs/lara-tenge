@@ -15,10 +15,10 @@ class PaymentStatusIsReceivedPipe {
      */
     public function handle($payment, \Closure $next) {
         if ($payment->status !== TengePayment::STATUS_RECEIVED) {
-            throw new \Exception('payment status should be ' . TengePayment::STATUS_RECEIVED);
+            throw new \Exception('payment with id '. $payment->id .' should has status ' . TengePayment::STATUS_RECEIVED);
         }
 
-        Tenge::log('payment ' . $payment . ' has correct status');
+        Tenge::log('payment ' . $payment->id . ' has correct status', $payment);
 
         return $next($payment);
     }

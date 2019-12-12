@@ -4,7 +4,7 @@ namespace Loot\Tenge\Actions;
 use Illuminate\Http\Request;
 use Loot\Tenge\Tenge;
 
-abstract class AbstractAction {
+abstract class Action {
     abstract public function handler($paymentId, Request $request);
 
     public function __invoke($paymentId, Request $request) {

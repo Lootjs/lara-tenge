@@ -3,8 +3,8 @@ declare(strict_types=1);
 
 namespace Loot\Tenge;
 
+use Illuminate\Contracts\Support\Arrayable;
 use Loot\Tenge\Drivers\DriverInterface;
-use Loot\Tenge\Loggers\LoggerInterface;
 
 class Tenge {
     /**
@@ -27,9 +27,16 @@ class Tenge {
 
     /**
      * Logging payment lifecycle
+     * @param $message
+     * @param mixed $data
+     * @return void
      */
 
-    public static function log($data) {
-        return resolve('tenge_logger')->log($data);
+    public static function log($message, $data = null) {
+        if ($data instanceof Arrayable) {
+            $data = $data->toArray();
+        }
+
+        return resolve('tenge_logger')->info(...func_get_args());
     }
 }

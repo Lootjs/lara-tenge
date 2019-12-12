@@ -15,13 +15,12 @@ class ApprovePaymentPipe {
      *
      * @param \Loot\Tenge\TengePayment $payment
      * @param \Closure $next
-     * @param $request
-     * @return mixed
+     * @return string
      * @throws \Exception
      */
     public function handle($payment, \Closure $next) {
         $response = Tenge::with($payment->driver)->approvePayment($payment->payment_id, $this->request);
-        Tenge::log('payment ' . $payment . ' was approved');
+        Tenge::log('payment ' . $payment->id. ' was approved', $payment);
 
         return $response;
     }
