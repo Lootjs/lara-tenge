@@ -8,32 +8,33 @@ use GuzzleHttp\TransferStats;
 use Illuminate\Http\Request;
 use Illuminate\Support\Fluent;
 use Loot\Tenge\Drivers\ {
-    BaseDriver, DriverInterface
+    Driver, DriverInterface
 };
 use Loot\Tenge\Tenge;
 use Loot\Tenge\TengePayment;
 
-class EpayDriver extends BaseDriver implements DriverInterface {
+class EpayDriver extends Driver implements DriverInterface {
 
     protected function getURL() {
         return $this->config['action_url'][config('tenge.environment')];
     }
 
     /**
-     * @param mixed ...$args
+     * @param int $paymentId
+     * @param int $amount
+     * @param string $title
      * @return Fluent
      */
-    public function createPayment(...$args) {
-        [$paymentId, $amount, $title] = $args;
-        Tenge::log('before create payment '. $paymentId, $paymentId);
+    public function createPayment($paymentId, $amount, $title = null) {
+        Tenge::log('before create payment '. $paymentId);
 
         (new Client)->post($this->getURL(), [
             'form_params' => [
                 'Signed_Order_B64' => (new KKBsign)->process_request($paymentId, $this->config['currency_id'], $amount, $this->config),
                 'paymentID' => $paymentId,
                 'Language' => 'rus',
-                'BackLink' => route('tenge.backlink', [], true),
-                'FailureBackLink' => route('tenge.backlink', ['paymentId' => $paymentId], true),
+                'BackLink' => config('tenge.routes.backlink'),
+                'FailureBackLink' => config('tenge.routes.failure_backlink'),
                 'PostLink' => route('tenge.approvelink', ['paymentId' => $paymentId], true),
                 'FailurePostLink' => route('tenge.faillink', ['paymentId' => $paymentId], true),
             ],

@@ -32,11 +32,11 @@ class Tenge {
      * @return void
      */
 
-    public static function log($message, $data = null) {
+    public static function log($message, $data = []) {
         if ($data instanceof Arrayable) {
             $data = $data->toArray();
         }
 
-        return resolve('tenge_logger')->info(...func_get_args());
+        return resolve('tenge_logger')->info($message, $data);
     }
 }

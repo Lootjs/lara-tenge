@@ -3,7 +3,7 @@ declare(strict_types=1);
 
 namespace Loot\Tenge\Drivers;
 
-abstract class BaseDriver implements DriverInterface {
+abstract class Driver implements DriverInterface {
     /**
      * Keep configs for gateway
      *

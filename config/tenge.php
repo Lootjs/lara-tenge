@@ -1,5 +1,9 @@
 <?php
 
+use Loot\Tenge\Drivers\ {
+    CyberplatDriver, KaspiDriver, ProstoplategDriver, WalletoneDriver, Epay\EpayDriver
+};
+
 return [
     /*
      * Название таблицы, для хранения оплат
@@ -29,7 +33,7 @@ return [
             /*
              * Класс-обработчик
              */
-            'handler' => \Loot\Tenge\Drivers\Epay\EpayDriver::class,
+            'handler' => EpayDriver::class,
 
             /*
              * Серийный номер сертификата Cert Serial Number
@@ -77,14 +81,34 @@ return [
 
             'currency_id' => 398,
         ],
+        'walletone' => [
+            'handler' => WalletoneDriver::class,
+            'key' => env('WALLETONE_KEY', '34755c361a6c313'),
+            'WMI_MERCHANT_ID' => env('WALLETONE_MERCHANT_ID', 123),
+            'WMI_CURRENCY_ID' => 398,
+
+            /*
+             * Способ оплаты
+             *
+             * В тестовом режиме доступен только CreditCardRUB
+             */
+            'WMI_PTENABLED' => 'CashTerminalKZT',
+
+            /*
+             * Показывать способы оплаты, соответствующие стране нахождения
+             *
+             * 1 — страна пользователя и отображение способов определяется по IP
+             */
+            'WMI_AUTO_LOCATION' => 1,
+        ],
         'prostoplateg' => [
-            'handler' => \Loot\Tenge\Drivers\ProstoplategDriver::class,
+            'handler' => ProstoplategDriver::class,
         ],
         'kaspi' => [
-            'handler' => \Loot\Tenge\Drivers\KaspiDriver::class,
+            'handler' => KaspiDriver::class,
         ],
         'cyberplat' => [
-            'handler' => \Loot\Tenge\Drivers\CyberplatDriver::class,
+            'handler' => CyberplatDriver::class,
         ],
     ],
     'hooks' => [
@@ -92,5 +116,9 @@ return [
             //'after_validation' => [\App\Http\Controllers\PaymentController::class, 'approvePayment'],
             'after_validation' => [],
         ],
+    ],
+    'routes' => [
+        'backlink' => env('APP_URL'),
+        'failure_backlink' => env('APP_URL'),
     ],
 ];
