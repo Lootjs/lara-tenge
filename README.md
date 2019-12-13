@@ -5,16 +5,15 @@
 ## Install
 ``php artisan vendor:publish --provider=Loot\Tenge\ServiceProvider``
 ## Todo
-- [ ] Epay
+- [x] Epay
 - [ ] Cyberplat
 - [ ] Kaspi
 - [ ] Prostoplateg
 - [ ] Paybox
-- [ ] WalletOne
+- [x] WalletOne
 - [ ] Kazpost
 - [ ] Tarlan Payments
 - [ ] spay.kz
 - [ ] kassa nova
 - [ ] wooppay
 - [ ] processing
-- [ ] cloudpayments.kz
