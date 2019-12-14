@@ -103,6 +103,45 @@ return [
         ],
         'prostoplateg' => [
             'handler' => ProstoplategDriver::class,
+
+            /*
+             * номер мерчанта (магазина), полученный при регистрации
+             */
+            'merchant_id' => 292,
+
+            /*
+             * секретный ключ, с помощью которого формируется цифровая подпись
+             */
+            'secret_code' => 'KKKjfd4i9hhhcn3h3h3dhchc',
+
+            /*
+             * информация о доставке
+             */
+            'deliver' => '',
+
+            /*
+             * тип валюты, который используется при оплате
+             * 31 — termkz (Касса24, Qiwi);
+             * 26 — WMK;
+             * 1 — WMZ;
+             * 5 — Яндекс.Деньги;
+             * 33 — Visa/Master
+             * 34 — BTC (Bitcoin)
+             */
+            'payment_method' => 26,
+            'text_coding' => 'UTF-8',
+
+            /*
+             * указание, на чей счет будет отнесена комиссия по транзакции
+             * 1 — за счет интернет-магазина;
+             * 2 — за счет клиента;
+             */
+            'commission' => 1,
+
+            /*
+             * https://order.prostoplateg.kz/sale.php
+             */
+            'pay_gate_url' => 'http://prostoplateg.kz/salekz.php',
         ],
         'kaspi' => [
             'handler' => KaspiDriver::class,
