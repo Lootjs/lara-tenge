@@ -14,6 +14,7 @@ class ProstoplategDriver extends Driver implements DriverInterface {
 
     public function createPayment($paymentId, $amount, $title = '') {
         Tenge::log('before create payment '. $paymentId);
+        $this->insertRecord($paymentId, 'prostoplateg', $amount);
 
         (new Client)->post($this->config['pay_gate_url'], [
             'form_params' => $this->generateFields(...func_get_args()),
@@ -33,7 +34,7 @@ class ProstoplategDriver extends Driver implements DriverInterface {
      * @return string
      */
     public function cancelPayment($payment, Request $request) {
-        $payment->setCancelledStatus();
+        $payment->setCanceledStatus();
         $message = 'Payment ['.$payment->id.']: fail transaction';
         Tenge::log($message, $payment);
 

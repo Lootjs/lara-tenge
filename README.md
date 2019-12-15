@@ -6,17 +6,26 @@
 - Laravel 5.8
 - php 7.0
 ## Install
-``php artisan vendor:publish --provider=Loot\Tenge\ServiceProvider``
+- Install the package:
+- Run ``php artisan vendor:publish --provider=Loot\Tenge\ServiceProvider``
+- Run ``php artisan migrate``
+- Write code, that approves payment, and set it in config/tenge.php: hooks.approve.after_validation
+- Add ignoring for lara-tenge routes: in your VerifyCsrfToken middleware
+```php
+protected $except = [
+    'lara-tenge/*',
+];
+````
 ## Todo
-- [x] Epay
+- [x] Epay.kz
 - [x] Prostoplateg
-- [x] Paybox
-- [x] WalletOne
-- [ ] spay.kz
-- [ ] wooppay
+- [x] Paybox.kz
+- [x] WalletOne.com
+- [x] Spay.kz 
 - [ ] kassa nova
 - [ ] Kazpost
 - [ ] processing
 - [ ] Kaspi
 - [ ] Cyberplat
+- [ ] wooppay
 - [ ] Tarlan Payments

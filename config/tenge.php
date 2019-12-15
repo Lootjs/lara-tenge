@@ -1,8 +1,12 @@
 <?php
 
-use Loot\Tenge\Drivers\ {
-    PayboxDriver, CyberplatDriver, KaspiDriver, ProstoplategDriver, WalletoneDriver, Epay\EpayDriver
-};
+use Loot\Tenge\Drivers\{PayboxDriver,
+    CyberplatDriver,
+    KaspiDriver,
+    ProstoplategDriver,
+    SpayDriver,
+    WalletoneDriver,
+    Epay\EpayDriver};
 
 return [
     /*
@@ -112,7 +116,7 @@ return [
             /*
              * секретный ключ, с помощью которого формируется цифровая подпись
              */
-            'secret_code' => 'KKKjfd4i9hhhcn3h3h3dhchc',
+            'secret_code' => env('PROSTOPLATEG_SECRET_CODE', 'KKKjfd4i9hhhcn3h3h3dhchc'),
 
             /*
              * информация о доставке
@@ -147,8 +151,27 @@ return [
             'handler' => PayboxDriver::class,
             'currency' => 'KZT',
             'encoding' => 'UTF-8',
-            'merchant_id' => 0,
-            'secret' => '',
+            'merchant_id' => env('PAYBOX_MERCHANT_ID', 1),
+            'secret' => env('PAYBOX_SECRET', null),
+        ],
+        'spay' => [
+            'handler' => SpayDriver::class,
+            'MERCHANT_ID' => env('SPAY_MERCHANT_ID', 1),
+
+            /*
+             * Типы оплаты:
+             * card       Visa / MasterCard
+             * webmoney   WebMoney (WMK)
+             * webmoney_z WebMoney (WMZ)
+             * qiwi       Qiwi-кошелек
+             * w1         WalletOne
+             * yandex     Yandex.Деньги
+             * ekzt       E-KZT
+             * btc        BitCoin
+             * onay       Карты ONAY
+             */
+            'PAYMENT_TYPE' => 'card',
+            'secret_key' => env('SPAY_SECRET_KEY', '123'),
         ],
         'kaspi' => [
             'handler' => KaspiDriver::class,

@@ -9,8 +9,10 @@ use Loot\Tenge\Tenge;
 use Loot\Tenge\TengePayment;
 
 class PayboxDriver extends Driver implements DriverInterface {
+
     public function createPayment($paymentId, $amount, $title = '') {
-        Tenge::log('before create payment '. $paymentId);
+        Tenge::log('Payment ['.$paymentId.']: before create payment');
+        $payment = $this->insertRecord($paymentId, 'paybox', $amount);
 
         $params = [
             'pg_amount'         => $amount,
@@ -23,8 +25,8 @@ class PayboxDriver extends Driver implements DriverInterface {
             'pg_merchant_id'    => $this->config['merchant_id'],
             'pg_order_id'       => $paymentId,
             'pg_result_url'     => route('tenge.approvelink', ['paymentId' => $paymentId]),
-            'pg_request_method' => 'GET', //you can use GET, POST, XML
-            'pg_salt'           => rand(21, 43433), //salt that will be used in encrypting the request
+            'pg_request_method' => 'POST',
+            'pg_salt'           => uniqid(),
             'pg_success_url'    => config('tenge.routes.backlink'),
             'pg_failure_url'    => config('tenge.routes.failure_backlink'),
             'pg_testing_mode'   => config('tenge.environment') === 'local' ? 1 : 0,
@@ -38,7 +40,12 @@ class PayboxDriver extends Driver implements DriverInterface {
         unset($params[0], $params[1]);
 
         $query = http_build_query($params);
-        $url = 'https://paybox.kz/' . $url . '?' . $query;
+        $url = 'https://api.paybox.money/' . $url . '?' . $query;
+
+        $data = $payment->data;
+        $data['pg_sig'] = $params['pg_sig'];
+        $payment->data = $data;
+        $payment->save();
 
         return new Fluent([
             'pay_url' => $url,
@@ -51,7 +58,7 @@ class PayboxDriver extends Driver implements DriverInterface {
      * @return string
      */
     public function cancelPayment($payment, Request $request) {
-        $payment->setCancelledStatus();
+        $payment->setCanceledStatus();
         $message = 'Payment ['.$payment->id.']: fail transaction';
         Tenge::log($message, $payment);
 
@@ -64,9 +71,6 @@ class PayboxDriver extends Driver implements DriverInterface {
      * @return string
      */
     public function checkPayment($payment, Request $request) {
-        $message = 'Payment ['.$payment->id.']: checking payment';
-        Tenge::log($message, $payment);
-
         if ($payment->status === TengePayment::STATUS_RECEIVED) {
             return 'OK';
         }
@@ -88,9 +92,18 @@ class PayboxDriver extends Driver implements DriverInterface {
             return 'failed transaction';
         }
 
+        if ($request->input('pg_sig') != $payment->data['pg_sig']) {
+            Tenge::log('Payment ['.$payment->id.']: signature doesnt match', $request->all());
+
+            return 'signature doesnt match';
+        }
+
         if ($hook = config('tenge.hooks.approve.after_validation')) {
             call_user_func($hook, $payment->payment_id, $request);
         }
+
+        $payment->setApproveStatus();
+        Tenge::log('Payment ['.$payment->id.']: was approved', $payment);
 
         return 'OK';
     }
