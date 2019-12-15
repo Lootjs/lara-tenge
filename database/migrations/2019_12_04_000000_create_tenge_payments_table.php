@@ -19,6 +19,12 @@ class CreateTengePaymentsTable extends Migration
             $table->integer('amount');
             $table->integer('status');
             $table->string('driver');
+            $table->json('data');
+            $table->timestamp('created_at')->useCurrent();
+            $table->timestamp('updated_at')->useCurrent();
+            $table->timestamp('approved_at')->nullable();
+            $table->timestamp('canceled_at')->nullable();
+            $table->timestamp('failed_at')->nullable();
             //$table->integer('user_id');
         });
     }

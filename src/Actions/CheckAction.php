@@ -5,14 +5,14 @@ use Illuminate\Http\Request;
 use Loot\Tenge\Tenge;
 use Loot\Tenge\TengePayment;
 
-class FailAction extends Action {
+class CheckAction extends Action {
     public function handler($paymentId, Request $request) {
         /**
-         * @var $payment TengePayment
+         * @var TengePayment $payment
          */
         $payment = TengePayment::where('payment_id', $paymentId)->first();
-        Tenge::log('Payment ['.$paymentId.']: transaction is failed', $payment);
+        Tenge::log('Payment ['.$payment->id.']: checking payment', $payment);
 
-        return Tenge::with($payment->driver)->cancelPayment($payment, $request);
+        return Tenge::with($payment->driver)->checkPayment($payment, $request);
     }
 }

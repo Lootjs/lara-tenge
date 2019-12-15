@@ -3,11 +3,28 @@
 namespace Loot\Tenge\Drivers;
 
 use Illuminate\Http\Request;
+use Loot\Tenge\TengePayment;
 
 interface DriverInterface {
-    public function createPayment($paymentId, $amount, $title = null);
+    /**
+     * @param int $paymentId
+     * @param $amount
+     * @param null $title
+     * @return mixed
+     */
+    public function createPayment(int $paymentId, $amount, $title = null);
 
-    public function cancelPayment();
+    /**
+     * @param TengePayment $payment
+     * @param Request $request
+     * @return string
+     */
+    public function cancelPayment(TengePayment $payment, Request $request);
 
-    public function approvePayment($id, Request $request);
+    /**
+     * @param TengePayment $payment
+     * @param Request $request
+     * @return mixed
+     */
+    public function approvePayment(TengePayment $payment, Request $request);
 }

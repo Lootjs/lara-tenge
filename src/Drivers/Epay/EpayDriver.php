@@ -27,6 +27,7 @@ class EpayDriver extends Driver implements DriverInterface {
      */
     public function createPayment($paymentId, $amount, $title = null) {
         Tenge::log('before create payment '. $paymentId);
+        $this->insertRecord($paymentId, 'epay', $amount);
 
         (new Client)->post($this->getURL(), [
             'form_params' => [
@@ -48,7 +49,7 @@ class EpayDriver extends Driver implements DriverInterface {
         ]);
     }
 
-    public function cancelPayment() {
+    public function cancelPayment($payment, Request $request) {
 
     }
 
@@ -104,7 +105,8 @@ class EpayDriver extends Driver implements DriverInterface {
             call_user_func($hook, $payment->payment_id, $request);
         }
 
-        Tenge::log('payment ' . $payment->id. ' was approved', $payment);
+        $payment->setApproveStatus();
+        Tenge::log('Payment ['.$payment->id.']: was approved', $payment);
 
         return 0;
     }

@@ -11,7 +11,7 @@ use Illuminate\Support\Fluent;
 use Loot\Tenge\Tenge;
 use Loot\Tenge\TengePayment;
 
-class WalletoneDriver extends Driver implements DriverInterface {
+class SpayDriver extends Driver implements DriverInterface {
     /**
      * @param int $paymentId
      * @param int $amount
@@ -21,18 +21,17 @@ class WalletoneDriver extends Driver implements DriverInterface {
      */
     public function createPayment($paymentId, $amount, $title = '') {
         Tenge::log('before create payment '. $paymentId);
-        $this->insertRecord($paymentId, 'walletone', $amount);
+        $this->insertRecord($paymentId, 'spay', $amount);
 
         $fields = [
-            'WMI_MERCHANT_ID' => $this->config['WMI_MERCHANT_ID'],
-            'WMI_PAYMENT_AMOUNT' => $amount,
-            'WMI_PAYMENT_NO' => $paymentId,
-            'WMI_CURRENCY_ID' => $this->config['WMI_CURRENCY_ID'],
-            'WMI_DESCRIPTION' => 'BASE64:'.base64_encode($title),
-            'WMI_SUCCESS_URL' => config('tenge.routes.backlink'),
-            'WMI_FAIL_URL' => config('tenge.routes.failure_backlink'),
-            'WMI_PTENABLED' => $this->config['WMI_PTENABLED'],
-            'WMI_AUTO_LOCATION' => $this->config['WMI_AUTO_LOCATION'],
+            'MERCHANT_ID'             => $this->config['MERCHANT_ID'],
+            'PAYMENT_AMOUNT'          => $amount,
+            'PAYMENT_TYPE'            => $this->config['PAYMENT_TYPE'],
+            'PAYMENT_ORDER_ID'        => $paymentId,
+            'PAYMENT_INFO'            => $title,
+            'PAYMENT_RETURN_URL'      => config('tenge.routes.backlink'),
+            'PAYMENT_RETURN_FAIL_URL' => config('tenge.routes.failure_backlink'),
+            'PAYMENT_CALLBACK_URL'    => route('tenge.approvelink', ['paymentId' => $paymentId]),
         ];
 
         foreach ($fields as $name => $val) {
@@ -60,26 +59,28 @@ class WalletoneDriver extends Driver implements DriverInterface {
             }
         }
 
-        $signature = base64_encode(pack("H*", md5($fieldValues . $this->config['key'])));
-        $fields['WMI_SIGNATURE'] = $signature;
+        $hash = base64_encode(pack("H*", md5($fieldValues . $this->config['secret_key'])));
+        $fields['PAYMENT_HASH'] = $hash;
 
         try {
-            (new Client)->post('https://wl.walletone.com/checkout/checkout/Index', [
+            $request = (new Client)->post('https://spos.kz/merchant/api/create_invoice', [
                 'form_params' => $fields,
-                'on_stats' => function (TransferStats $stats) use (&$url) {
-                    $url = $stats->getEffectiveUri();
-                }
             ]);
-        } catch (ServerException $exception) {
-            $message = 'Payment '.$paymentId.': fail with code 500, check your key and merchant id';
+            $response = json_decode($request->getBody()->getContents());
+
+            if ($response->status > 0) {
+                throw new \Exception($response->desc);
+            }
+
+            return new Fluent([
+                'pay_url' => $response->data->url
+            ]);
+        } catch (\Exception $exception) {
+            $message = 'Payment ['.$paymentId.']: '.$exception->getMessage();
             Tenge::log($message);
 
             return $message;
         }
-
-        return new Fluent([
-            'pay_url' => (string) $url
-        ]);
     }
 
     public function cancelPayment($payment, Request $request) {
@@ -96,7 +97,7 @@ class WalletoneDriver extends Driver implements DriverInterface {
 
         $values = $this->getValues($request->all());
 
-        $signature = base64_encode(pack("H*", md5($values . $this->config['key'])));
+        $signature = base64_encode(pack("H*", md5($values . $this->config['secret_key'])));
 
         if ($request->input('WMI_ORDER_STATE') == 'Accepted' && $request->input('WMI_SIGNATURE') == $signature) {
             if ($hook = config('tenge.hooks.approve.after_validation')) {
@@ -105,19 +106,19 @@ class WalletoneDriver extends Driver implements DriverInterface {
 
             Tenge::log('Payment ['.$payment->id.']: was approved', $payment);
 
-            return 'WMI_RESULT=OK';
+            return 'RESULT=OK';
         }
 
         Tenge::log('Payment ['.$payment->id.']: signature doesnt match', $request->all());
 
-        return 'WMI_RESULT=RETRY&WMI_DESCRIPTION=Сервер временно недоступен';
+        return 'RESULT=RETRY&DESCRIPTION=Сервер временно недоступен';
     }
 
     public function getValues(array $input): string {
         $params = [];
 
         foreach ($input as $name => $value) {
-            if ($name !== "WMI_SIGNATURE") $params[$name] = $value;
+            if ($name !== "PAYMENT_HASH") $params[$name] = $value;
         }
 
         uksort($params, "strcasecmp");
