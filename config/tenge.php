@@ -1,7 +1,7 @@
 <?php
 
 use Loot\Tenge\Drivers\ {
-    CyberplatDriver, KaspiDriver, ProstoplategDriver, WalletoneDriver, Epay\EpayDriver
+    PayboxDriver, CyberplatDriver, KaspiDriver, ProstoplategDriver, WalletoneDriver, Epay\EpayDriver
 };
 
 return [
@@ -142,6 +142,13 @@ return [
              * https://order.prostoplateg.kz/sale.php
              */
             'pay_gate_url' => 'http://prostoplateg.kz/salekz.php',
+        ],
+        'paybox' => [
+            'handler' => PayboxDriver::class,
+            'currency' => 'KZT',
+            'encoding' => 'UTF-8',
+            'merchant_id' => 0,
+            'secret' => '',
         ],
         'kaspi' => [
             'handler' => KaspiDriver::class,

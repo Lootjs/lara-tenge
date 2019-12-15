@@ -9,14 +9,14 @@
 ``php artisan vendor:publish --provider=Loot\Tenge\ServiceProvider``
 ## Todo
 - [x] Epay
-- [ ] Cyberplat
-- [ ] Kaspi
-- [ ] Prostoplateg
-- [ ] Paybox
+- [x] Prostoplateg
+- [x] Paybox
 - [x] WalletOne
-- [ ] Kazpost
-- [ ] Tarlan Payments
 - [ ] spay.kz
-- [ ] kassa nova
 - [ ] wooppay
+- [ ] kassa nova
+- [ ] Kazpost
 - [ ] processing
+- [ ] Kaspi
+- [ ] Cyberplat
+- [ ] Tarlan Payments

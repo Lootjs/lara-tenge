@@ -32,4 +32,10 @@ class TengePayment extends Model
             'status' => self::STATUS_SETTLED,
         ]);
     }
+
+    public function setCancelledStatus() {
+        $this->update([
+            'status' => self::STATUS_CANCELLED,
+        ]);
+    }
 }

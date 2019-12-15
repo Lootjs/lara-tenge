@@ -33,6 +33,7 @@ class ProstoplategDriver extends Driver implements DriverInterface {
      * @return string
      */
     public function cancelPayment($payment, Request $request) {
+        $payment->setCancelledStatus();
         $message = 'Payment ['.$payment->id.']: fail transaction';
         Tenge::log($message, $payment);
 
@@ -40,6 +41,8 @@ class ProstoplategDriver extends Driver implements DriverInterface {
     }
 
     public function approvePayment($payment, Request $request) {
+        Tenge::log('before approve payment '. $payment->id, $request->all());
+
         $uniq_paygate = $_POST["RETURN_UNIQ_ID"]+0;
         $merchant = $_POST["RETURN_MERCHANT"]+0;
         $serversign = $_POST["RETURN_HASH"];
