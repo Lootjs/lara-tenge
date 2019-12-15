@@ -6,7 +6,7 @@
 - Laravel 5.8
 - php 7.0
 ## Install
-- Install the package:
+- Install the package: ``composer require loot/lara-tenge``
 - Run ``php artisan vendor:publish --provider=Loot\Tenge\ServiceProvider``
 - Run ``php artisan migrate``
 - Write code, that approves payment, and set it in config/tenge.php: hooks.approve.after_validation
@@ -16,6 +16,8 @@ protected $except = [
     'lara-tenge/*',
 ];
 ````
+### Documentations
+[Russian](docs/ru/install.md)
 ## Todo
 - [x] Epay.kz
 - [x] Prostoplateg
