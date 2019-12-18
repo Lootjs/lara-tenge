@@ -6,7 +6,7 @@
 Далее, вам надо опубликовать конфиг файлы, миграции, и тестовые ключи, для этого запустите:
 ``php artisan vendor:publish --provider=Loot\Tenge\ServiceProvider``
 
-Затем запустите миграции: ``php artisan migrate``
+Затем, запустите миграции: ``php artisan migrate``
 
 Теперь вам надо написать код, который выполнится, после успешной оплаты. 
 Сохраните вызов этого кода в конфиг-файле config/tenge.php, в секции hooks.approve.after_validation

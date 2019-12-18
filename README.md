@@ -16,8 +16,8 @@ protected $except = [
     'lara-tenge/*',
 ];
 ````
-### Documentations
-[Russian](docs/ru/install.md)
+## Documentation
+[Russian](docs/ru/install.md)  | English
 ## Todo
 - [x] Epay.kz
 - [x] Prostoplateg
