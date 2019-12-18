@@ -4,16 +4,16 @@ namespace Loot\Tenge\Actions;
 
 use Illuminate\Http\Request;
 use Illuminate\Pipeline\Pipeline;
+use Loot\Tenge\Actions\Pipes\ApprovePaymentPipe;
+use Loot\Tenge\Actions\Pipes\CheckPaymentExistsPipe;
+use Loot\Tenge\Actions\Pipes\PaymentStatusIsReceivedPipe;
 use Loot\Tenge\DeterminateDriver;
 use Loot\Tenge\TengePayment;
-use Loot\Tenge\Actions\Pipes\ {
-    ApprovePaymentPipe,
-    CheckPaymentExistsPipe,
-    PaymentStatusIsReceivedPipe
-};
 
-class ApproveAction extends Action {
-    public function handler($paymentId, Request $request) {
+class ApproveAction extends Action
+{
+    public function handler($paymentId, Request $request)
+    {
         if (empty($paymentId)) {
             $paymentId = (new DeterminateDriver($request))
                 ->process()

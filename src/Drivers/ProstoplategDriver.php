@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace Loot\Tenge\Drivers;
@@ -10,21 +11,22 @@ use Illuminate\Support\Fluent;
 use Loot\Tenge\Tenge;
 use Loot\Tenge\TengePayment;
 
-class ProstoplategDriver extends Driver implements DriverInterface {
-
-    public function createPayment($paymentId, $amount, $title = '') {
-        Tenge::log('before create payment '. $paymentId);
+class ProstoplategDriver extends Driver implements DriverInterface
+{
+    public function createPayment($paymentId, $amount, $title = '')
+    {
+        Tenge::log('before create payment '.$paymentId);
         $this->insertRecord($paymentId, 'prostoplateg', $amount);
 
         (new Client)->post($this->config['pay_gate_url'], [
             'form_params' => $this->generateFields(...func_get_args()),
             'on_stats' => function (TransferStats $stats) use (&$url) {
                 $url = $stats->getEffectiveUri();
-            }
+            },
         ]);
 
         return new Fluent([
-            'pay_url' => (string) $url
+            'pay_url' => (string) $url,
         ]);
     }
 
@@ -33,7 +35,8 @@ class ProstoplategDriver extends Driver implements DriverInterface {
      * @param Request $request
      * @return string
      */
-    public function cancelPayment($payment, Request $request) {
+    public function cancelPayment($payment, Request $request)
+    {
         $payment->setCanceledStatus();
         $message = 'Payment ['.$payment->id.']: fail transaction';
         Tenge::log($message, $payment);
@@ -41,22 +44,22 @@ class ProstoplategDriver extends Driver implements DriverInterface {
         return $message;
     }
 
-    public function approvePayment($payment, Request $request) {
-        Tenge::log('before approve payment '. $payment->id, $request->all());
+    public function approvePayment($payment, Request $request)
+    {
+        Tenge::log('before approve payment '.$payment->id, $request->all());
 
-        $uniq_paygate = $_POST["RETURN_UNIQ_ID"]+0;
-        $merchant = $_POST["RETURN_MERCHANT"]+0;
-        $serversign = $_POST["RETURN_HASH"];
-        $result = $_POST["RETURN_RESULT"]+0;
-        $amount = $_POST["RETURN_AMOUNT"]+0;
-        $comission = $_POST["RETURN_COMISSION"];
-        $comisstype = $_POST["RETURN_COMMISSTYPE"]+0;
-        $testmode = $_POST["TEST_MODE"]+0;
-        $paymentdate = $_POST["PAYMENT_DATE"];
-        $addvalue = $_POST["RETURN_ADDVALUE"];
-        $paygateid = $_POST["RETURN_CLIENTORDER"]+0;
-        $mp = $_POST["RETURN_TYPE"]+0;
-
+        $uniq_paygate = $_POST['RETURN_UNIQ_ID'] + 0;
+        $merchant = $_POST['RETURN_MERCHANT'] + 0;
+        $serversign = $_POST['RETURN_HASH'];
+        $result = $_POST['RETURN_RESULT'] + 0;
+        $amount = $_POST['RETURN_AMOUNT'] + 0;
+        $comission = $_POST['RETURN_COMISSION'];
+        $comisstype = $_POST['RETURN_COMMISSTYPE'] + 0;
+        $testmode = $_POST['TEST_MODE'] + 0;
+        $paymentdate = $_POST['PAYMENT_DATE'];
+        $addvalue = $_POST['RETURN_ADDVALUE'];
+        $paygateid = $_POST['RETURN_CLIENTORDER'] + 0;
+        $mp = $_POST['RETURN_TYPE'] + 0;
 
         if ($result != 20) {
             return $this->cancelPayment($payment, $request);
@@ -79,7 +82,8 @@ class ProstoplategDriver extends Driver implements DriverInterface {
         return 'OK';
     }
 
-    protected function generateFields($paymentId, $amount, $title = '') {
+    protected function generateFields($paymentId, $amount, $title = '')
+    {
         $textcoding = $this->config['text_coding'];
         $linexmlhead = chr(60)."?xml version=\"1.0\" encoding=\"$textcoding\"?".chr(62);
 
@@ -94,8 +98,8 @@ class ProstoplategDriver extends Driver implements DriverInterface {
         $amount = round($amount, 2);
         $deliver = $this->config['deliver'];
 
-        $amount = round($amount*100);
-        $date = date("YmdHis");
+        $amount = round($amount * 100);
+        $date = date('YmdHis');
         $orderhash = md5($date.$title.$amount.$date.$paymentId.$mp);
 
         $operxml = <<<OPP
@@ -116,7 +120,6 @@ $linexmlhead
 <PAYMENT_TESTMODE>$testmode</PAYMENT_TESTMODE>
 </MAIN>
 OPP;
-
 
         $operxml = base64_encode(rawurlencode($operxml));
         $sign = md5($operxml.$this->config['secret_code']);

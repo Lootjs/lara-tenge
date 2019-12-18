@@ -1,21 +1,24 @@
 <?php
+
 namespace Loot\Tenge;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Fluent;
 
-class DeterminateDriver {
-
+class DeterminateDriver
+{
     /**
-     * @var Request $request
+     * @var Request
      */
     protected $request;
 
-    public function __construct(Request $request) {
+    public function __construct(Request $request)
+    {
         $this->request = $request;
     }
 
-    public function process(): Fluent {
+    public function process(): Fluent
+    {
         $result = [];
 
         if ($this->request->has('WMI_PAYMENT_NO')) {

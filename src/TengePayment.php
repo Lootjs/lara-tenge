@@ -1,11 +1,11 @@
 <?php
+
 namespace Loot\Tenge;
 
 use Illuminate\Database\Eloquent\Model;
 
 /**
- * Class TengePayment
- * @package Loot\Tenge
+ * Class TengePayment.
  *
  * @property $id int
  * @property $payment_id int
@@ -13,7 +13,6 @@ use Illuminate\Database\Eloquent\Model;
  * @property $driver string
  * @property $data array
  */
-
 class TengePayment extends Model
 {
     const STATUS_RECEIVED = 0;
@@ -38,14 +37,16 @@ class TengePayment extends Model
         'failed_at',
     ];
 
-    public function setApproveStatus() {
+    public function setApproveStatus()
+    {
         $this->update([
             'status' => self::STATUS_SETTLED,
             'approved_at' => now(),
         ]);
     }
 
-    public function setCanceledStatus() {
+    public function setCanceledStatus()
+    {
         $this->update([
             'status' => self::STATUS_CANCELLED,
             'canceled_at' => now(),

@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace Loot\Tenge\Drivers;
@@ -8,9 +9,10 @@ use Illuminate\Support\Fluent;
 use Loot\Tenge\Tenge;
 use Loot\Tenge\TengePayment;
 
-class PayboxDriver extends Driver implements DriverInterface {
-
-    public function createPayment($paymentId, $amount, $title = '') {
+class PayboxDriver extends Driver implements DriverInterface
+{
+    public function createPayment($paymentId, $amount, $title = '')
+    {
         Tenge::log('Payment ['.$paymentId.']: before create payment');
         $payment = $this->insertRecord($paymentId, 'paybox', $amount);
 
@@ -40,7 +42,7 @@ class PayboxDriver extends Driver implements DriverInterface {
         unset($params[0], $params[1]);
 
         $query = http_build_query($params);
-        $url = 'https://api.paybox.money/' . $url . '?' . $query;
+        $url = 'https://api.paybox.money/'.$url.'?'.$query;
 
         $data = $payment->data;
         $data['pg_sig'] = $params['pg_sig'];
@@ -57,7 +59,8 @@ class PayboxDriver extends Driver implements DriverInterface {
      * @param Request $request
      * @return string
      */
-    public function cancelPayment($payment, Request $request) {
+    public function cancelPayment($payment, Request $request)
+    {
         $payment->setCanceledStatus();
         $message = 'Payment ['.$payment->id.']: fail transaction';
         Tenge::log($message, $payment);
@@ -70,7 +73,8 @@ class PayboxDriver extends Driver implements DriverInterface {
      * @param Request $request
      * @return string
      */
-    public function checkPayment($payment, Request $request) {
+    public function checkPayment($payment, Request $request)
+    {
         if ($payment->status === TengePayment::STATUS_RECEIVED) {
             return 'OK';
         }
@@ -83,7 +87,8 @@ class PayboxDriver extends Driver implements DriverInterface {
      * @param Request $request
      * @return string
      */
-    public function approvePayment($payment, Request $request) {
+    public function approvePayment($payment, Request $request)
+    {
         Tenge::log('Payment ['.$payment->id.']: before approve payment ', $request->all());
 
         if ($request->input('pg_result') == 0) {
