@@ -1,18 +1,20 @@
 <?php
+
 namespace Loot\Tenge;
 
 use Monolog\Formatter\LineFormatter;
-use Monolog\Handler\ {
-    NullHandler, StreamHandler
-};
+use Monolog\Handler\NullHandler;
+use Monolog\Handler\StreamHandler;
 
-class Logger {
+class Logger
+{
     /**
      * @var \Monolog\Logger
      */
     private $manager;
 
-    public function __construct() {
+    public function __construct()
+    {
         $this->manager = new \Monolog\Logger('lara-tenge');
         $handler = new NullHandler;
 
@@ -30,7 +32,8 @@ class Logger {
         $this->manager->pushHandler($handler);
     }
 
-    public function getManager() {
+    public function getManager()
+    {
         return $this->manager;
     }
 }

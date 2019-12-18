@@ -1,11 +1,10 @@
 <?php
+
 namespace Loot\Tenge\Test;
 
+use Loot\Tenge\ServiceProvider;
+use Loot\Tenge\TengeFacade;
 use Orchestra\Testbench\TestCase;
-use Loot\Tenge\ {
-    TengeFacade,
-    ServiceProvider
-};
 
 abstract class BaseTest extends TestCase
 {
@@ -28,6 +27,7 @@ abstract class BaseTest extends TestCase
             ]
         );
     }
+
     /**
      * Setup the test environment.
      */
@@ -36,6 +36,7 @@ abstract class BaseTest extends TestCase
         parent::setUp();
         //$this->loadMigrationsFrom(__DIR__.'/../database/migrations');
     }
+
     /**
      * Get package providers.
      *
@@ -49,6 +50,7 @@ abstract class BaseTest extends TestCase
             ServiceProvider::class,
         ];
     }
+
     /**
      * Get package aliases.
      *

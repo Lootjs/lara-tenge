@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace Loot\Tenge\Drivers;
@@ -11,7 +12,8 @@ use Illuminate\Support\Fluent;
 use Loot\Tenge\Tenge;
 use Loot\Tenge\TengePayment;
 
-class WalletoneDriver extends Driver implements DriverInterface {
+class WalletoneDriver extends Driver implements DriverInterface
+{
     /**
      * @param int $paymentId
      * @param int $amount
@@ -19,8 +21,9 @@ class WalletoneDriver extends Driver implements DriverInterface {
      *
      * @return Fluent|string
      */
-    public function createPayment($paymentId, $amount, $title = '') {
-        Tenge::log('before create payment '. $paymentId);
+    public function createPayment($paymentId, $amount, $title = '')
+    {
+        Tenge::log('before create payment '.$paymentId);
         $this->insertRecord($paymentId, 'walletone', $amount);
 
         $fields = [
@@ -43,7 +46,7 @@ class WalletoneDriver extends Driver implements DriverInterface {
         }
 
         uksort($fields, 'strcasecmp');
-        $fieldValues = "";
+        $fieldValues = '';
         foreach ($fields as $value) {
             if (is_array($value)) {
                 foreach ($value as $v) {
@@ -60,7 +63,7 @@ class WalletoneDriver extends Driver implements DriverInterface {
             }
         }
 
-        $signature = base64_encode(pack("H*", md5($fieldValues . $this->config['key'])));
+        $signature = base64_encode(pack('H*', md5($fieldValues.$this->config['key'])));
         $fields['WMI_SIGNATURE'] = $signature;
 
         try {
@@ -68,7 +71,7 @@ class WalletoneDriver extends Driver implements DriverInterface {
                 'form_params' => $fields,
                 'on_stats' => function (TransferStats $stats) use (&$url) {
                     $url = $stats->getEffectiveUri();
-                }
+                },
             ]);
         } catch (ServerException $exception) {
             $message = 'Payment '.$paymentId.': fail with code 500, check your key and merchant id';
@@ -78,12 +81,12 @@ class WalletoneDriver extends Driver implements DriverInterface {
         }
 
         return new Fluent([
-            'pay_url' => (string) $url
+            'pay_url' => (string) $url,
         ]);
     }
 
-    public function cancelPayment($payment, Request $request) {
-
+    public function cancelPayment($payment, Request $request)
+    {
     }
 
     /**
@@ -91,12 +94,13 @@ class WalletoneDriver extends Driver implements DriverInterface {
      * @param Request $request
      * @return int|string
      */
-    public function approvePayment($payment, Request $request) {
-        Tenge::log('before approve payment '. $payment->id, $request->all());
+    public function approvePayment($payment, Request $request)
+    {
+        Tenge::log('before approve payment '.$payment->id, $request->all());
 
         $values = $this->getValues($request->all());
 
-        $signature = base64_encode(pack("H*", md5($values . $this->config['key'])));
+        $signature = base64_encode(pack('H*', md5($values.$this->config['key'])));
 
         if ($request->input('WMI_ORDER_STATE') == 'Accepted' && $request->input('WMI_SIGNATURE') == $signature) {
             if ($hook = config('tenge.hooks.approve.after_validation')) {
@@ -113,15 +117,18 @@ class WalletoneDriver extends Driver implements DriverInterface {
         return 'WMI_RESULT=RETRY&WMI_DESCRIPTION=Сервер временно недоступен';
     }
 
-    public function getValues(array $input): string {
+    public function getValues(array $input): string
+    {
         $params = [];
 
         foreach ($input as $name => $value) {
-            if ($name !== "WMI_SIGNATURE") $params[$name] = $value;
+            if ($name !== 'WMI_SIGNATURE') {
+                $params[$name] = $value;
+            }
         }
 
-        uksort($params, "strcasecmp");
-        $values = "";
+        uksort($params, 'strcasecmp');
+        $values = '';
 
         foreach ($params as $name => $value) {
             $values .= $value;

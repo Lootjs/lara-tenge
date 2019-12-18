@@ -1,4 +1,5 @@
 <?php
+
 namespace Loot\Tenge;
 
 use Illuminate\Support\ServiceProvider as BaseServiceProvider;
@@ -13,7 +14,7 @@ class ServiceProvider extends BaseServiceProvider
     public function boot()
     {
         $this->publishes([
-            __DIR__ . '/../config/tenge.php' => config_path('tenge.php'),
+            __DIR__.'/../config/tenge.php' => config_path('tenge.php'),
         ]);
         $this->mergeConfigFrom(__DIR__.'/../config/tenge.php', 'tenge');
         $this->loadRoutesFrom(__DIR__.'/../routes/web.php');

@@ -1,17 +1,17 @@
 <?php
+
 declare(strict_types=1);
 
 namespace Loot\Tenge\Drivers;
 
 use GuzzleHttp\Client;
-use GuzzleHttp\Exception\ServerException;
-use GuzzleHttp\TransferStats;
 use Illuminate\Http\Request;
 use Illuminate\Support\Fluent;
 use Loot\Tenge\Tenge;
 use Loot\Tenge\TengePayment;
 
-class SpayDriver extends Driver implements DriverInterface {
+class SpayDriver extends Driver implements DriverInterface
+{
     /**
      * @param int $paymentId
      * @param int $amount
@@ -19,8 +19,9 @@ class SpayDriver extends Driver implements DriverInterface {
      *
      * @return Fluent|string
      */
-    public function createPayment($paymentId, $amount, $title = '') {
-        Tenge::log('before create payment '. $paymentId);
+    public function createPayment($paymentId, $amount, $title = '')
+    {
+        Tenge::log('before create payment '.$paymentId);
         $this->insertRecord($paymentId, 'spay', $amount);
 
         $fields = [
@@ -42,7 +43,7 @@ class SpayDriver extends Driver implements DriverInterface {
         }
 
         uksort($fields, 'strcasecmp');
-        $fieldValues = "";
+        $fieldValues = '';
         foreach ($fields as $value) {
             if (is_array($value)) {
                 foreach ($value as $v) {
@@ -59,7 +60,7 @@ class SpayDriver extends Driver implements DriverInterface {
             }
         }
 
-        $hash = base64_encode(pack("H*", md5($fieldValues . $this->config['secret_key'])));
+        $hash = base64_encode(pack('H*', md5($fieldValues.$this->config['secret_key'])));
         $fields['PAYMENT_HASH'] = $hash;
 
         try {
@@ -73,7 +74,7 @@ class SpayDriver extends Driver implements DriverInterface {
             }
 
             return new Fluent([
-                'pay_url' => $response->data->url
+                'pay_url' => $response->data->url,
             ]);
         } catch (\Exception $exception) {
             $message = 'Payment ['.$paymentId.']: '.$exception->getMessage();
@@ -83,8 +84,8 @@ class SpayDriver extends Driver implements DriverInterface {
         }
     }
 
-    public function cancelPayment($payment, Request $request) {
-
+    public function cancelPayment($payment, Request $request)
+    {
     }
 
     /**
@@ -92,12 +93,13 @@ class SpayDriver extends Driver implements DriverInterface {
      * @param Request $request
      * @return int|string
      */
-    public function approvePayment($payment, Request $request) {
-        Tenge::log('before approve payment '. $payment->id, $request->all());
+    public function approvePayment($payment, Request $request)
+    {
+        Tenge::log('before approve payment '.$payment->id, $request->all());
 
         $values = $this->getValues($request->all());
 
-        $signature = base64_encode(pack("H*", md5($values . $this->config['secret_key'])));
+        $signature = base64_encode(pack('H*', md5($values.$this->config['secret_key'])));
 
         if ($request->input('WMI_ORDER_STATE') == 'Accepted' && $request->input('WMI_SIGNATURE') == $signature) {
             if ($hook = config('tenge.hooks.approve.after_validation')) {
@@ -114,15 +116,18 @@ class SpayDriver extends Driver implements DriverInterface {
         return 'RESULT=RETRY&DESCRIPTION=Сервер временно недоступен';
     }
 
-    public function getValues(array $input): string {
+    public function getValues(array $input): string
+    {
         $params = [];
 
         foreach ($input as $name => $value) {
-            if ($name !== "PAYMENT_HASH") $params[$name] = $value;
+            if ($name !== 'PAYMENT_HASH') {
+                $params[$name] = $value;
+            }
         }
 
-        uksort($params, "strcasecmp");
-        $values = "";
+        uksort($params, 'strcasecmp');
+        $values = '';
 
         foreach ($params as $name => $value) {
             $values .= $value;
