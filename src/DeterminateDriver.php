@@ -20,14 +20,13 @@ class DeterminateDriver
      * DeterminateDriver constructor.
      * @param Request $request
      */
-
     public function __construct(Request $request)
     {
         $this->request = $request;
     }
 
     /**
-     * Find a driver, that handle request
+     * Find a driver, that handle request.
      *
      * @return Fluent
      */
@@ -47,7 +46,7 @@ class DeterminateDriver
     }
 
     /**
-     * Walletone checker
+     * Walletone checker.
      *
      * @return array
      */

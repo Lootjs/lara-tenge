@@ -9,7 +9,7 @@ use Loot\Tenge\TengePayment;
 class CheckPaymentPipe
 {
     /**
-     * @var $request Request
+     * @var Request
      */
     public $request;
 

@@ -4,11 +4,8 @@ namespace Loot\Tenge\Actions;
 
 use Illuminate\Http\Request;
 use Illuminate\Pipeline\Pipeline;
-use Loot\Tenge\Actions\Pipes\ApprovePaymentPipe;
 use Loot\Tenge\Actions\Pipes\CheckPaymentPipe;
 use Loot\Tenge\Actions\Pipes\PaymentExistsPipe;
-use Loot\Tenge\Actions\Pipes\PaymentStatusIsReceivedPipe;
-use Loot\Tenge\Tenge;
 use Loot\Tenge\TengePayment;
 
 class CheckAction extends Action
@@ -22,7 +19,7 @@ class CheckAction extends Action
     public function handler($paymentId, Request $request)
     {
         /**
-         * @var TengePayment $payment
+         * @var TengePayment
          */
         $payment = TengePayment::where('payment_id', $paymentId)->first();
         $pipes = [
