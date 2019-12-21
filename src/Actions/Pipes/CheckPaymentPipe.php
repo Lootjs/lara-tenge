@@ -2,10 +2,15 @@
 
 namespace Loot\Tenge\Actions\Pipes;
 
+use Illuminate\Http\Request;
 use Loot\Tenge\Tenge;
+use Loot\Tenge\TengePayment;
 
-class ApprovePaymentPipe
+class CheckPaymentPipe
 {
+    /**
+     * @var Request
+     */
     public $request;
 
     public function __construct($request)
@@ -16,14 +21,16 @@ class ApprovePaymentPipe
     /**
      * Check that payment exists.
      *
-     * @param \Loot\Tenge\TengePayment $payment
+     * @param TengePayment $payment
      * @param \Closure $next
      * @return string
      * @throws \Exception
      */
     public function handle($payment, \Closure $next)
     {
+        Tenge::log('Payment ['.$payment->id.']: checking payment', $payment);
+
         return Tenge::with($payment->driver)
-            ->approvePayment($payment, $this->request);
+            ->checkPayment($payment, $this->request);
     }
 }

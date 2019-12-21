@@ -1,4 +1,5 @@
 <?php
+
 namespace Loot\Tenge\Drivers\Epay;
 
 /*
@@ -12,7 +13,8 @@ namespace Loot\Tenge\Drivers\Epay;
 */
 
 // -----===++[Additional procedures start/Дополнительные процедуры начало]++===-----
-class xml {
+class Xml
+{
     // -----===++[Parse XML to ARRAY]++===-----
     // methods:
     // parse($data) - return array in format listed below
@@ -38,21 +40,23 @@ class xml {
     // пример:$array['BANK_NAME'] = "Kazkommertsbank JSC"
 
     public $parser;
-    public $xarray = array();
+    public $xarray = [];
     public $lasttag;
 
     public function construct()
-    {   $this->parser = xml_parser_create();
-        xml_set_object($this->parser,$this);
+    {
+        $this->parser = xml_parser_create();
+        xml_set_object($this->parser, $this);
         xml_parser_set_option($this->parser, XML_OPTION_CASE_FOLDING, true);
-        xml_set_element_handler($this->parser, "tag_open", "tag_close");
-        xml_set_character_data_handler($this->parser, "cdata");
+        xml_set_element_handler($this->parser, 'tag_open', 'tag_close');
+        xml_set_character_data_handler($this->parser, 'cdata');
     }
 
     public function parse($data)
     {
         xml_parse($this->parser, $data);
-        ksort($this->xarray,SORT_STRING);
+        ksort($this->xarray, SORT_STRING);
+
         return $this->xarray;
     }
 
@@ -60,18 +64,20 @@ class xml {
     {
         $this->lasttag = $tag;
         $this->xarray['TAG_'.$tag] = $tag;
-        if (is_array($attributes)){
+        if (is_array($attributes)) {
             foreach ($attributes as $key => $value) {
                 $this->xarray[$tag.'_'.$key] = $value;
-            };
-        };
+            }
+        }
     }
 
     public function cdata($parser, $cdata)
-    {	$tag = $this->lasttag;
+    {
+        $tag = $this->lasttag;
         $this->xarray[$tag.'_CHARDATA'] = $cdata;
     }
 
     public function tag_close($parser, $tag)
-    {}
+    {
+    }
 }

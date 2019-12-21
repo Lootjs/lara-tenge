@@ -1,30 +1,62 @@
 <?php
+
 namespace Loot\Tenge;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Fluent;
 
-class DeterminateDriver {
-
+class DeterminateDriver
+{
     /**
-     * @var Request $request
+     * @var Request
      */
     protected $request;
 
-    public function __construct(Request $request) {
+    protected $checkers = [
+        'isWalletone',
+    ];
+
+    /**
+     * DeterminateDriver constructor.
+     * @param Request $request
+     */
+    public function __construct(Request $request)
+    {
         $this->request = $request;
     }
 
-    public function process(): Fluent {
+    /**
+     * Find a driver, that handle request.
+     *
+     * @return Fluent
+     */
+    public function process(): Fluent
+    {
         $result = [];
 
+        foreach ($this->checkers as $checker) {
+            if ($checkerResult = call_user_func([$this, $checker])) {
+                $result = $checkerResult;
+
+                break;
+            }
+        }
+
+        return new Fluent($result);
+    }
+
+    /**
+     * Walletone checker.
+     *
+     * @return array
+     */
+    protected function isWalletone()
+    {
         if ($this->request->has('WMI_PAYMENT_NO')) {
-            $result = [
+            return [
                 'payment_id' => $this->request->input('WMI_PAYMENT_NO'),
                 'driver' => 'walletone',
             ];
         }
-
-        return new Fluent($result);
     }
 }

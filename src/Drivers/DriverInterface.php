@@ -5,7 +5,8 @@ namespace Loot\Tenge\Drivers;
 use Illuminate\Http\Request;
 use Loot\Tenge\TengePayment;
 
-interface DriverInterface {
+interface DriverInterface
+{
     /**
      * @param int $paymentId
      * @param $amount

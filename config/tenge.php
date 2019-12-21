@@ -1,12 +1,12 @@
 <?php
 
-use Loot\Tenge\Drivers\{PayboxDriver,
-    CyberplatDriver,
-    KaspiDriver,
-    ProstoplategDriver,
-    SpayDriver,
-    WalletoneDriver,
-    Epay\EpayDriver};
+use Loot\Tenge\Drivers\CyberplatDriver;
+use Loot\Tenge\Drivers\Epay\EpayDriver;
+use Loot\Tenge\Drivers\KaspiDriver;
+use Loot\Tenge\Drivers\PayboxDriver;
+use Loot\Tenge\Drivers\ProstoplategDriver;
+use Loot\Tenge\Drivers\SpayDriver;
+use Loot\Tenge\Drivers\WalletoneDriver;
 
 return [
     /*
