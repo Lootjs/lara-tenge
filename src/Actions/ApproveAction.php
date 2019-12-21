@@ -5,13 +5,18 @@ namespace Loot\Tenge\Actions;
 use Illuminate\Http\Request;
 use Illuminate\Pipeline\Pipeline;
 use Loot\Tenge\Actions\Pipes\ApprovePaymentPipe;
-use Loot\Tenge\Actions\Pipes\CheckPaymentExistsPipe;
+use Loot\Tenge\Actions\Pipes\PaymentExistsPipe;
 use Loot\Tenge\Actions\Pipes\PaymentStatusIsReceivedPipe;
 use Loot\Tenge\DeterminateDriver;
 use Loot\Tenge\TengePayment;
 
 class ApproveAction extends Action
 {
+    /**
+     * @param int $paymentId
+     * @param Request $request
+     * @return mixed
+     */
     public function handler($paymentId, Request $request)
     {
         if (empty($paymentId)) {
@@ -22,8 +27,8 @@ class ApproveAction extends Action
 
         $payment = TengePayment::where('payment_id', $paymentId)->first();
         $pipes = [
-            new CheckPaymentExistsPipe($paymentId),
-            PaymentStatusIsReceivedPipe::class,
+            new PaymentExistsPipe($paymentId),
+            new PaymentStatusIsReceivedPipe,
             new ApprovePaymentPipe($request),
         ];
 

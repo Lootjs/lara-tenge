@@ -89,7 +89,7 @@ class EpayDriver extends Driver implements DriverInterface
             $error = 'System error'.$result;
         }
 
-        if ($result['PAYMENT_MERCHANT_ID'] != '98800841') {
+        if ($result['PAYMENT_MERCHANT_ID'] != $this->config['MERCHANT_ID']) {
             $error = 'merchant id doesnt match '.$result['PAYMENT_MERCHANT_ID'];
         } elseif ($result['PAYMENT_RESPONSE_CODE'] != '00') {
             $error = 'Bad response';

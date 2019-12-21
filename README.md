@@ -1,5 +1,5 @@
 # Lara-Tenge [Work-In-Progress]
- [![Build Status](https://travis-ci.org/Lootjs/lara-tenge.svg?branch=dev)](https://travis-ci.org/Lootjs/lara-tenge) ![GitHub repo size](https://img.shields.io/github/repo-size/lootjs/lara-tenge) ![GitHub closed pull requests](https://img.shields.io/github/issues-pr-closed/lootjs/lara-tenge) ![Work in progress](https://img.shields.io/badge/wip-work%20in%20progress-brightgreen) 
+ [![Build Status](https://travis-ci.org/Lootjs/lara-tenge.svg?branch=dev)](https://travis-ci.org/Lootjs/lara-tenge) ![GitHub repo size](https://img.shields.io/github/repo-size/lootjs/lara-tenge) ![GitHub closed pull requests](https://img.shields.io/github/issues-pr-closed/lootjs/lara-tenge) [![StyleCI](https://github.styleci.io/repos/225604318/shield?branch=dev)](https://github.styleci.io/repos/225604318) 
  ---
 Система оплаты для Laravel. Из коробки поддерживаются казахстанские платежки
 ## Requirements

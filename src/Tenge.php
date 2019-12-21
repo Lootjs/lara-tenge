@@ -23,9 +23,9 @@ class Tenge
             throw new \Exception(sprintf('Driver [%s] not found', $driver));
         }
 
-        $configs = config('tenge.drivers')[$driver];
+        $config = config('tenge.drivers')[$driver];
 
-        return new $configs['handler']($configs);
+        return new $config['handler']($config);
     }
 
     /**
@@ -34,7 +34,7 @@ class Tenge
      * @param mixed $data
      * @return void
      */
-    public static function log($message, $data = [])
+    public static function log($message, $data = []): void
     {
         if ($data instanceof Arrayable) {
             $data = $data->toArray();

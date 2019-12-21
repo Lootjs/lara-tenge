@@ -3,19 +3,36 @@
 namespace Loot\Tenge\Actions;
 
 use Illuminate\Http\Request;
+use Illuminate\Pipeline\Pipeline;
+use Loot\Tenge\Actions\Pipes\ApprovePaymentPipe;
+use Loot\Tenge\Actions\Pipes\CheckPaymentPipe;
+use Loot\Tenge\Actions\Pipes\PaymentExistsPipe;
+use Loot\Tenge\Actions\Pipes\PaymentStatusIsReceivedPipe;
 use Loot\Tenge\Tenge;
 use Loot\Tenge\TengePayment;
 
 class CheckAction extends Action
 {
+    /**
+     * @param $paymentId
+     * @param Request $request
+     * @return mixed
+     * @throws \Exception
+     */
     public function handler($paymentId, Request $request)
     {
         /**
-         * @var TengePayment
+         * @var TengePayment $payment
          */
         $payment = TengePayment::where('payment_id', $paymentId)->first();
-        Tenge::log('Payment ['.$payment->id.']: checking payment', $payment);
+        $pipes = [
+            new PaymentExistsPipe($paymentId),
+            new CheckPaymentPipe($request),
+        ];
 
-        return Tenge::with($payment->driver)->checkPayment($payment, $request);
+        return app(Pipeline::class)
+            ->send($payment)
+            ->through($pipes)
+            ->thenReturn();
     }
 }

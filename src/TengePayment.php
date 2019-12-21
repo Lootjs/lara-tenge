@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Model;
  * @property $id int
  * @property $payment_id int
  * @property $status int
+ * @property $amount int
  * @property $driver string
  * @property $data array
  */
