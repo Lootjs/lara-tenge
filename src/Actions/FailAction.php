@@ -14,7 +14,7 @@ class FailAction extends Action
          * @var TengePayment
          */
         $payment = TengePayment::where('payment_id', $paymentId)->first();
-        Tenge::log('Payment ['.$paymentId.']: transaction is failed', $payment);
+        resolve('tenge_logger')->info('Payment ['.$paymentId.']: transaction is failed', $payment->toArray());
 
         return Tenge::with($payment->driver)->cancelPayment($payment, $request);
     }

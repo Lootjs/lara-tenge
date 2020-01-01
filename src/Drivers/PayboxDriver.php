@@ -6,15 +6,15 @@ namespace Loot\Tenge\Drivers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Fluent;
-use Loot\Tenge\Tenge;
+use Loot\Tenge\Hook;
 use Loot\Tenge\TengePayment;
 
 class PayboxDriver extends Driver implements DriverInterface
 {
     public function createPayment($paymentId, $amount, $title = '')
     {
-        Tenge::log('Payment ['.$paymentId.']: before create payment');
-        $payment = $this->insertRecord($paymentId, 'paybox', $amount);
+        resolve('tenge_logger')->info('Payment ['.$paymentId.']: before create payment');
+        $payment = TengePayment::insertRecord($paymentId, 'paybox', $amount);
 
         $params = [
             'pg_amount'         => $amount,
@@ -63,7 +63,7 @@ class PayboxDriver extends Driver implements DriverInterface
     {
         $payment->setCanceledStatus();
         $message = 'Payment ['.$payment->id.']: fail transaction';
-        Tenge::log($message, $payment);
+        resolve('tenge_logger')->info($message, $payment);
 
         return $message;
     }
@@ -89,26 +89,24 @@ class PayboxDriver extends Driver implements DriverInterface
      */
     public function approvePayment($payment, Request $request)
     {
-        Tenge::log('Payment ['.$payment->id.']: before approve payment ', $request->all());
+        resolve('tenge_logger')->info('Payment ['.$payment->id.']: before approve payment ', $request->all());
 
         if ($request->input('pg_result') == 0) {
-            Tenge::log('Payment ['.$payment->id.']: failed transaction', $request->all());
+            resolve('tenge_logger')->info('Payment ['.$payment->id.']: failed transaction', $request->all());
 
             return 'failed transaction';
         }
 
         if ($request->input('pg_sig') != $payment->data['pg_sig']) {
-            Tenge::log('Payment ['.$payment->id.']: signature doesnt match', $request->all());
+            resolve('tenge_logger')->info('Payment ['.$payment->id.']: signature doesnt match', $request->all());
 
             return 'signature doesnt match';
         }
 
-        if ($hook = config('tenge.hooks.approve.after_validation')) {
-            call_user_func($hook, $payment->payment_id, $request);
-        }
+        Hook::trigger('approve.after_validation')->with($payment->payment_id, $request);
 
         $payment->setApproveStatus();
-        Tenge::log('Payment ['.$payment->id.']: was approved', $payment);
+        resolve('tenge_logger')->info('Payment ['.$payment->id.']: was approved', $payment);
 
         return 'OK';
     }

@@ -2,7 +2,6 @@
 
 namespace Loot\Tenge\Actions\Pipes;
 
-use Loot\Tenge\Tenge;
 use Loot\Tenge\TengePayment;
 
 class PaymentStatusIsReceivedPipe
@@ -21,7 +20,7 @@ class PaymentStatusIsReceivedPipe
             throw new \Exception('payment with id '.$payment->id.' should has status '.TengePayment::STATUS_RECEIVED);
         }
 
-        Tenge::log('payment '.$payment->id.' has correct status', $payment);
+        resolve('tenge_logger')->info('payment '.$payment->id.' has correct status', $payment->toArray());
 
         return $next($payment);
     }

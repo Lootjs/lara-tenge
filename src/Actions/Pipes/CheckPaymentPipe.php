@@ -28,7 +28,7 @@ class CheckPaymentPipe
      */
     public function handle($payment, \Closure $next)
     {
-        Tenge::log('Payment ['.$payment->id.']: checking payment', $payment);
+        resolve('tenge_logger')->info('Payment ['.$payment->id.']: checking payment', $payment->toArray());
 
         return Tenge::with($payment->driver)
             ->checkPayment($payment, $this->request);

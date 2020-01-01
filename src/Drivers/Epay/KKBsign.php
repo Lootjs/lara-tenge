@@ -474,7 +474,9 @@ class KKBsign
         // $data['TAG_RESULTS'] = "RESULTS"
         // $data['CHECKRESULT'] = "[SIGN_GOOD]"
 
-        $xml_parser = new xml();
+        $xml_parser = new XMLParser();
+        info(var_export($xml_parser, true));
+        info(var_export($response, true));
         $result = $xml_parser->parse($response);
         if (in_array('ERROR', $result)) {
             return $result;

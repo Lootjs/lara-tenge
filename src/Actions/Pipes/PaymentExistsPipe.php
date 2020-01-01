@@ -2,8 +2,6 @@
 
 namespace Loot\Tenge\Actions\Pipes;
 
-use Loot\Tenge\Tenge;
-
 class PaymentExistsPipe
 {
     public $paymentId;
@@ -24,10 +22,10 @@ class PaymentExistsPipe
     public function handle($payment, \Closure $next)
     {
         if (empty($payment)) {
-            throw new \Exception('payment '.$this->paymentId.' not found');
+            throw new \Exception('Payment ['.$payment->id.']: not found');
         }
 
-        Tenge::log('payment '.$payment->id.' was found', $payment);
+        resolve('tenge_logger')->info('Payment ['.$payment->id.']: was found', $payment->toArray());
 
         return $next($payment);
     }

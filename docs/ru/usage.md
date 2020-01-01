@@ -28,3 +28,11 @@ return redirect()->to($paymentService->get('pay_url'));
     ]
 ];
 ````
+Controller@successPayment:
+```php
+public function successPayment($paymentId, Request $request) {
+        $payment = Payment::find($paymentId);
+        $payment->status = 1;
+        $payment->save();
+    }
+``` 
