@@ -64,11 +64,11 @@ class TengePayment extends Model
      */
     public static function insertRecord($paymentId, $driver, $amount): self
     {
-        return static::create([
+        return self::create([
             'payment_id' => $paymentId,
             'driver' => $driver,
             'amount' => ($amount * 100),
-            'status' => TengePayment::STATUS_RECEIVED,
+            'status' => self::STATUS_RECEIVED,
             'data' => [],
         ]);
     }

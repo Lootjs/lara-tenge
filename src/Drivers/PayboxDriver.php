@@ -7,7 +7,6 @@ namespace Loot\Tenge\Drivers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Fluent;
 use Loot\Tenge\Hook;
-use Loot\Tenge\Tenge;
 use Loot\Tenge\TengePayment;
 
 class PayboxDriver extends Driver implements DriverInterface

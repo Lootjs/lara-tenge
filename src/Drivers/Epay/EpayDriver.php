@@ -9,7 +9,6 @@ use Illuminate\Support\Fluent;
 use Loot\Tenge\Drivers\Driver;
 use Loot\Tenge\Drivers\DriverInterface;
 use Loot\Tenge\Hook;
-use Loot\Tenge\Tenge;
 use Loot\Tenge\TengePayment;
 
 class EpayDriver extends Driver implements DriverInterface
@@ -40,7 +39,7 @@ class EpayDriver extends Driver implements DriverInterface
             //'appendix',
             //'template',
         ]);
-        $url = $this->getURL() . '?' .  $params;
+        $url = $this->getURL().'?'.$params;
 
         return new Fluent([
             'pay_url' => $url,
@@ -95,7 +94,7 @@ class EpayDriver extends Driver implements DriverInterface
         } elseif ($result['PAYMENT_RESPONSE_CODE'] != '00') {
             $error = 'Bad response';
         } elseif ($result['PAYMENT_AMOUNT'] != ($payment->amount / 100)) {
-            $error = 'Other amount: '. $result['PAYMENT_AMOUNT'].' != '. $payment->amount;
+            $error = 'Other amount: '.$result['PAYMENT_AMOUNT'].' != '.$payment->amount;
         }
 
         if ($error) {

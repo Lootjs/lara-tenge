@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace Loot\Tenge\Drivers;
 
-use Loot\Tenge\TengePayment;
-
 abstract class Driver implements DriverInterface
 {
     /**

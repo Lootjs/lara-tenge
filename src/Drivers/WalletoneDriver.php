@@ -10,7 +10,6 @@ use GuzzleHttp\TransferStats;
 use Illuminate\Http\Request;
 use Illuminate\Support\Fluent;
 use Loot\Tenge\Hook;
-use Loot\Tenge\Tenge;
 use Loot\Tenge\TengePayment;
 
 class WalletoneDriver extends Driver implements DriverInterface

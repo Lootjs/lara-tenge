@@ -11,7 +11,7 @@ class FailAction extends Action
     public function handler($paymentId, Request $request)
     {
         /**
-         * @var TengePayment $payment
+         * @var TengePayment
          */
         $payment = TengePayment::where('payment_id', $paymentId)->first();
         resolve('tenge_logger')->info('Payment ['.$paymentId.']: transaction is failed', $payment->toArray());

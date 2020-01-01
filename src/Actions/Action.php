@@ -3,7 +3,6 @@
 namespace Loot\Tenge\Actions;
 
 use Illuminate\Http\Request;
-use Loot\Tenge\Tenge;
 
 abstract class Action
 {

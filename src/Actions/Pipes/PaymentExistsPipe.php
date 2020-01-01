@@ -2,8 +2,6 @@
 
 namespace Loot\Tenge\Actions\Pipes;
 
-use Loot\Tenge\Tenge;
-
 class PaymentExistsPipe
 {
     public $paymentId;

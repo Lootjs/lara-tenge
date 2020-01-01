@@ -17,7 +17,7 @@ class Hook
     {
         $instance = new self;
         $instance->resolver = $instance->parseHook(
-            config('tenge.hooks.' . $hook) ?? [$instance, 'nullResolver']
+            config('tenge.hooks.'.$hook) ?? [$instance, 'nullResolver']
         );
 
         return $instance;
@@ -75,6 +75,6 @@ class Hook
 
     public function nullResolver(...$args)
     {
-        return null;
+        //
     }
 }
