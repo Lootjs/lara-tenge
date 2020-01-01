@@ -8,6 +8,7 @@ use GuzzleHttp\Client;
 use GuzzleHttp\TransferStats;
 use Illuminate\Http\Request;
 use Illuminate\Support\Fluent;
+use Loot\Tenge\Hook;
 use Loot\Tenge\Tenge;
 use Loot\Tenge\TengePayment;
 
@@ -15,8 +16,8 @@ class ProstoplategDriver extends Driver implements DriverInterface
 {
     public function createPayment($paymentId, $amount, $title = '')
     {
-        Tenge::log('before create payment '.$paymentId);
-        $this->insertRecord($paymentId, 'prostoplateg', $amount);
+        resolve('tenge_logger')->info('before create payment '.$paymentId);
+        TengePayment::insertRecord($paymentId, 'prostoplateg', $amount);
 
         (new Client)->post($this->config['pay_gate_url'], [
             'form_params' => $this->generateFields(...func_get_args()),
@@ -39,14 +40,14 @@ class ProstoplategDriver extends Driver implements DriverInterface
     {
         $payment->setCanceledStatus();
         $message = 'Payment ['.$payment->id.']: fail transaction';
-        Tenge::log($message, $payment);
+        resolve('tenge_logger')->info($message, $payment);
 
         return $message;
     }
 
     public function approvePayment($payment, Request $request)
     {
-        Tenge::log('before approve payment '.$payment->id, $request->all());
+        resolve('tenge_logger')->info('before approve payment '.$payment->id, $request->all());
 
         $uniq_paygate = $_POST['RETURN_UNIQ_ID'] + 0;
         $merchant = $_POST['RETURN_MERCHANT'] + 0;
@@ -71,13 +72,11 @@ class ProstoplategDriver extends Driver implements DriverInterface
         if ($shopsign != $serversign) {
             $msgerror = "При проверке транзакции хеши не совпадают\n hash = $shopsign\n server_hash = $serversign\n";
 
-            Tenge::log($msgerror, $request->all());
+            resolve('tenge_logger')->info($msgerror, $request->all());
             exit;
         }
 
-        if ($hook = config('tenge.hooks.approve.after_validation')) {
-            call_user_func($hook, $payment->payment_id, $request);
-        }
+        Hook::trigger('approve.after_validation')->with($payment->payment_id, $request);
 
         return 'OK';
     }

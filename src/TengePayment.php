@@ -53,4 +53,23 @@ class TengePayment extends Model
             'canceled_at' => now(),
         ]);
     }
+
+    /**
+     * Create record in payments table.
+     *
+     * @param int $paymentId
+     * @param string $driver
+     * @param int $amount
+     * @return TengePayment
+     */
+    public static function insertRecord($paymentId, $driver, $amount): self
+    {
+        return static::create([
+            'payment_id' => $paymentId,
+            'driver' => $driver,
+            'amount' => ($amount * 100),
+            'status' => TengePayment::STATUS_RECEIVED,
+            'data' => [],
+        ]);
+    }
 }

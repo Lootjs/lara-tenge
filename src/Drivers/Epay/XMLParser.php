@@ -13,7 +13,7 @@ namespace Loot\Tenge\Drivers\Epay;
 */
 
 // -----===++[Additional procedures start/Дополнительные процедуры начало]++===-----
-class Xml
+class XMLParser
 {
     // -----===++[Parse XML to ARRAY]++===-----
     // methods:
@@ -43,7 +43,7 @@ class Xml
     public $xarray = [];
     public $lasttag;
 
-    public function construct()
+    public function __construct()
     {
         $this->parser = xml_parser_create();
         xml_set_object($this->parser, $this);
@@ -54,7 +54,11 @@ class Xml
 
     public function parse($data)
     {
-        xml_parse($this->parser, $data);
+        if (! is_resource($this->parser)) {
+            info('parse: '.var_export($this->parser, true));
+        } else {
+            xml_parse($this->parser, $data);
+        }
         ksort($this->xarray, SORT_STRING);
 
         return $this->xarray;

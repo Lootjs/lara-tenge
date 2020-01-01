@@ -9,6 +9,7 @@ use GuzzleHttp\Exception\ServerException;
 use GuzzleHttp\TransferStats;
 use Illuminate\Http\Request;
 use Illuminate\Support\Fluent;
+use Loot\Tenge\Hook;
 use Loot\Tenge\Tenge;
 use Loot\Tenge\TengePayment;
 
@@ -23,8 +24,8 @@ class WalletoneDriver extends Driver implements DriverInterface
      */
     public function createPayment($paymentId, $amount, $title = '')
     {
-        Tenge::log('before create payment '.$paymentId);
-        $this->insertRecord($paymentId, 'walletone', $amount);
+        resolve('tenge_logger')->info('before create payment '.$paymentId);
+        TengePayment::insertRecord($paymentId, 'walletone', $amount);
 
         $fields = [
             'WMI_MERCHANT_ID' => $this->config['WMI_MERCHANT_ID'],
@@ -75,7 +76,7 @@ class WalletoneDriver extends Driver implements DriverInterface
             ]);
         } catch (ServerException $exception) {
             $message = 'Payment '.$paymentId.': fail with code 500, check your key and merchant id';
-            Tenge::log($message);
+            resolve('tenge_logger')->info($message);
 
             return $message;
         }
@@ -96,23 +97,21 @@ class WalletoneDriver extends Driver implements DriverInterface
      */
     public function approvePayment($payment, Request $request)
     {
-        Tenge::log('before approve payment '.$payment->id, $request->all());
+        resolve('tenge_logger')->info('before approve payment '.$payment->id, $request->all());
 
         $values = $this->getValues($request->all());
 
         $signature = base64_encode(pack('H*', md5($values.$this->config['key'])));
 
         if ($request->input('WMI_ORDER_STATE') == 'Accepted' && $request->input('WMI_SIGNATURE') == $signature) {
-            if ($hook = config('tenge.hooks.approve.after_validation')) {
-                call_user_func($hook, $payment->payment_id, $request);
-            }
+            Hook::trigger('approve.after_validation')->with($payment->payment_id, $request);
 
-            Tenge::log('Payment ['.$payment->id.']: was approved', $payment);
+            resolve('tenge_logger')->info('Payment ['.$payment->id.']: was approved', $payment);
 
             return 'WMI_RESULT=OK';
         }
 
-        Tenge::log('Payment ['.$payment->id.']: signature doesnt match', $request->all());
+        resolve('tenge_logger')->info('Payment ['.$payment->id.']: signature doesnt match', $request->all());
 
         return 'WMI_RESULT=RETRY&WMI_DESCRIPTION=Сервер временно недоступен';
     }

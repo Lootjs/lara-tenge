@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Loot\Tenge;
 
-use Illuminate\Contracts\Support\Arrayable;
 use Loot\Tenge\Drivers\DriverInterface;
 
 class Tenge
@@ -26,20 +25,5 @@ class Tenge
         $config = config('tenge.drivers')[$driver];
 
         return new $config['handler']($config);
-    }
-
-    /**
-     * Logging payment lifecycle.
-     * @param $message
-     * @param mixed $data
-     * @return void
-     */
-    public static function log($message, $data = []): void
-    {
-        if ($data instanceof Arrayable) {
-            $data = $data->toArray();
-        }
-
-        return resolve('tenge_logger')->info($message, $data);
     }
 }

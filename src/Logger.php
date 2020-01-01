@@ -16,24 +16,28 @@ class Logger
     public function __construct()
     {
         $this->manager = new \Monolog\Logger('lara-tenge');
-        $handler = new NullHandler;
 
-        if (config('tenge.logging')) {
-            try {
-                $file = 'logs/tenge/lara-tenge__'.date('m.Y').'.log';
-                $handler = new StreamHandler(storage_path($file));
-                $output = "[%datetime%] %channel%.%level_name%: %message% %context.user%\n";
-                $handler->setFormatter(new LineFormatter($output));
-            } catch (\Exception $e) {
-                exit($e->getMessage());
-            }
-        }
-
-        $this->manager->pushHandler($handler);
+        $this->manager->pushHandler(
+            $this->getHandler()
+        );
     }
 
-    public function getManager()
+    private function getManager()
     {
         return $this->manager;
+    }
+
+    private function getHandler()
+    {
+        if (config('tenge.logging')) {
+            $file = 'logs/tenge/lara-tenge__'.date('m.Y').'.log';
+            $handler = new StreamHandler(storage_path($file));
+            $output = "[%datetime%] %channel%.%level_name%: %message% %context.user%\n";
+            $handler->setFormatter(new LineFormatter($output));
+
+            return $handler;
+        }
+
+        return new NullHandler;
     }
 }

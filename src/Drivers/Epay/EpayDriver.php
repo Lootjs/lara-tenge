@@ -4,12 +4,11 @@ declare(strict_types=1);
 
 namespace Loot\Tenge\Drivers\Epay;
 
-use GuzzleHttp\Client;
-use GuzzleHttp\TransferStats;
 use Illuminate\Http\Request;
 use Illuminate\Support\Fluent;
 use Loot\Tenge\Drivers\Driver;
 use Loot\Tenge\Drivers\DriverInterface;
+use Loot\Tenge\Hook;
 use Loot\Tenge\Tenge;
 use Loot\Tenge\TengePayment;
 
@@ -28,26 +27,23 @@ class EpayDriver extends Driver implements DriverInterface
      */
     public function createPayment($paymentId, $amount, $title = null)
     {
-        Tenge::log('before create payment '.$paymentId);
-        $this->insertRecord($paymentId, 'epay', $amount);
+        resolve('tenge_logger')->info('before create payment '.$paymentId);
+        TengePayment::insertRecord($paymentId, 'epay', $amount);
 
-        (new Client)->post($this->getURL(), [
-            'form_params' => [
-                'Signed_Order_B64' => (new KKBsign)->process_request($paymentId, $this->config['currency_id'], $amount, $this->config),
-                'paymentID' => $paymentId,
-                'Language' => 'rus',
-                'BackLink' => config('tenge.routes.backlink'),
-                'FailureBackLink' => config('tenge.routes.failure_backlink'),
-                'PostLink' => route('tenge.approvelink', ['paymentId' => $paymentId], true),
-                'FailurePostLink' => route('tenge.faillink', ['paymentId' => $paymentId], true),
-            ],
-            'on_stats' => function (TransferStats $stats) use (&$url) {
-                $url = $stats->getEffectiveUri();
-            },
+        $params = http_build_query([
+            'Signed_Order_B64' => (new KKBsign)->process_request($paymentId, $this->config['currency_id'], $amount, $this->config),
+            'email' => 'dcms@gmail.com',
+            'BackLink' => config('tenge.routes.backlink'),
+            'PostLink' => route('tenge.approvelink', ['paymentId' => $paymentId], true),
+            'FailureBackLink' => config('tenge.routes.failure_backlink'),
+            'FailurePostLink' => route('tenge.faillink', ['paymentId' => $paymentId], true),
+            //'appendix',
+            //'template',
         ]);
+        $url = $this->getURL() . '?' .  $params;
 
         return new Fluent([
-            'pay_url' => (string) $url,
+            'pay_url' => $url,
         ]);
     }
 
@@ -63,17 +59,21 @@ class EpayDriver extends Driver implements DriverInterface
     public function approvePayment($payment, Request $request)
     {
         //$payment = TengePayment::where('payment_id', $result['ORDER_ORDER_ID'])->first();
-        Tenge::log('before approve payment '.$payment->id, $request->all());
+        resolve('tenge_logger')->info('Payment ['.$payment->id.']: before approve', $request->toArray());
 
         if (! $request->filled('response')) {
             $message = 'response field is empty';
-            Tenge::log($message, $request->all());
+            resolve('tenge_logger')->info($message, $request->all());
 
             return $message;
         }
 
         $error = 0;
-        $result = (new KKBsign)->process_response($request->input('response'), $this->config);
+        try {
+            $result = (new KKBsign)->process_response($request->input('response'), $this->config);
+        } catch (\Exception $exception) {
+            $result = $exception->getMessage();
+        }
 
         if (is_array($result)) {
             if (in_array('ERROR', $result)) {
@@ -87,29 +87,28 @@ class EpayDriver extends Driver implements DriverInterface
             }
         } else {
             $error = 'System error'.$result;
+            $result = [];
         }
 
         if ($result['PAYMENT_MERCHANT_ID'] != $this->config['MERCHANT_ID']) {
             $error = 'merchant id doesnt match '.$result['PAYMENT_MERCHANT_ID'];
         } elseif ($result['PAYMENT_RESPONSE_CODE'] != '00') {
             $error = 'Bad response';
-        } elseif ($result['PAYMENT_AMOUNT'] != $payment->amount) {
-            $error = 'Other amount';
+        } elseif ($result['PAYMENT_AMOUNT'] != ($payment->amount / 100)) {
+            $error = 'Other amount: '. $result['PAYMENT_AMOUNT'].' != '. $payment->amount;
         }
 
         if ($error) {
             $prefix = 'Payment ['.$payment->id.']: ';
-            Tenge::log($prefix.$error, $result);
+            resolve('tenge_logger')->info($prefix.$error, $result);
 
             return 'Error: '.$error;
         }
 
-        if ($hook = config('tenge.hooks.approve.after_validation')) {
-            call_user_func($hook, $payment->payment_id, $request);
-        }
-
         $payment->setApproveStatus();
-        Tenge::log('Payment ['.$payment->id.']: was approved', $payment);
+
+        Hook::trigger('approve.after_validation')->with($payment->payment_id, $request);
+        resolve('tenge_logger')->info('Payment ['.$payment->id.']: was approved', $payment);
 
         return 0;
     }

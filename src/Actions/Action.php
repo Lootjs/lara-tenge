@@ -14,7 +14,7 @@ abstract class Action
         try {
             return $this->handler(...func_get_args());
         } catch (\Exception $exception) {
-            Tenge::log($exception->getMessage());
+            resolve('tenge_logger')->info($exception->getMessage());
 
             return $exception->getMessage();
         }
