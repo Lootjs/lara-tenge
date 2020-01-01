@@ -2,7 +2,6 @@
 
 namespace Loot\Tenge\Actions\Pipes;
 
-use Loot\Tenge\Tenge;
 use Loot\Tenge\TengePayment;
 
 class PaymentStatusIsReceivedPipe
