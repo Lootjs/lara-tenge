@@ -25,14 +25,14 @@ class SpayDriver extends Driver implements DriverInterface
         TengePayment::insertRecord($paymentId, 'spay', $amount);
 
         $fields = [
-            'MERCHANT_ID'             => $this->config['MERCHANT_ID'],
-            'PAYMENT_AMOUNT'          => $amount,
-            'PAYMENT_TYPE'            => $this->config['PAYMENT_TYPE'],
-            'PAYMENT_ORDER_ID'        => $paymentId,
-            'PAYMENT_INFO'            => $title,
-            'PAYMENT_RETURN_URL'      => config('tenge.routes.backlink'),
+            'MERCHANT_ID' => $this->config['MERCHANT_ID'],
+            'PAYMENT_AMOUNT' => $amount,
+            'PAYMENT_TYPE' => $this->config['PAYMENT_TYPE'],
+            'PAYMENT_ORDER_ID' => $paymentId,
+            'PAYMENT_INFO' => $title,
+            'PAYMENT_RETURN_URL' => config('tenge.routes.backlink'),
             'PAYMENT_RETURN_FAIL_URL' => config('tenge.routes.failure_backlink'),
-            'PAYMENT_CALLBACK_URL'    => route('tenge.approvelink', ['paymentId' => $paymentId]),
+            'PAYMENT_CALLBACK_URL' => route('tenge.approvelink', ['paymentId' => $paymentId]),
         ];
 
         foreach ($fields as $name => $val) {
@@ -84,7 +84,7 @@ class SpayDriver extends Driver implements DriverInterface
         }
     }
 
-    public function cancelPayment($payment, Request $request)
+    public function cancelPayment($payment, Request $request): void
     {
     }
 

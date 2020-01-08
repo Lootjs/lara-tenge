@@ -11,9 +11,9 @@ class CreateTengePaymentsTable extends Migration
      *
      * @return void
      */
-    public function up()
+    public function up(): void
     {
-        Schema::create($this->getTable(), function (Blueprint $table) {
+        Schema::create($this->getTable(), function (Blueprint $table): void {
             $table->increments('id');
             $table->integer('payment_id')->unique();
             $table->integer('amount');
@@ -34,11 +34,16 @@ class CreateTengePaymentsTable extends Migration
      *
      * @return void
      */
-    public function down()
+    public function down(): void
     {
         Schema::dropIfExists($this->getTable());
     }
 
+    /**
+     * Returns the table name.
+     *
+     * @return string
+     */
     public function getTable()
     {
         return config('tenge.table_name');

@@ -20,7 +20,7 @@ class ProstoplategDriver extends Driver implements DriverInterface
 
         (new Client)->post($this->config['pay_gate_url'], [
             'form_params' => $this->generateFields(...func_get_args()),
-            'on_stats' => function (TransferStats $stats) use (&$url) {
+            'on_stats' => function (TransferStats $stats) use (&$url): void {
                 $url = $stats->getEffectiveUri();
             },
         ]);

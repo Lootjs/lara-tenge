@@ -73,7 +73,7 @@ class Hook
         return [$class, $method];
     }
 
-    public function nullResolver(...$args)
+    public function nullResolver(...$args): void
     {
         //
     }

@@ -104,7 +104,7 @@ class KKBsign
 
     // -----------------------------------------------------------------------------------------------
     // Установка флага инверсии
-    public function invert()
+    public function invert(): void
     {
         $this->invert = 1;
     }
@@ -168,7 +168,7 @@ class KKBsign
     }
 
     // -----------------------------------------------------------------------------------------------
-    public function parse_errors($error)
+    public function parse_errors($error): void
     {
         // -----===++[Parses error to errorcode and message]++===-----
         /*error:0906D06C - Error reading Certificate. Verify Cert type.

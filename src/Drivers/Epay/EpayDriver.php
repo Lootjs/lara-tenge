@@ -46,7 +46,7 @@ class EpayDriver extends Driver implements DriverInterface
         ]);
     }
 
-    public function cancelPayment($payment, Request $request)
+    public function cancelPayment($payment, Request $request): void
     {
     }
 

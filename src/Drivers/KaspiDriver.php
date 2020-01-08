@@ -6,15 +6,15 @@ namespace Loot\Tenge\Drivers;
 
 class KaspiDriver extends Driver implements DriverInterface
 {
-    public function createPayment()
+    public function createPayment(): void
     {
     }
 
-    public function cancelPayment()
+    public function cancelPayment(): void
     {
     }
 
-    public function approvePayment()
+    public function approvePayment(): void
     {
     }
 }

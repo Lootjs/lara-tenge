@@ -17,21 +17,21 @@ class PayboxDriver extends Driver implements DriverInterface
         $payment = TengePayment::insertRecord($paymentId, 'paybox', $amount);
 
         $params = [
-            'pg_amount'         => $amount,
-            'pg_check_url'      => route('tenge.checklink', ['paymentId' => $paymentId]),
-            'pg_description'    => $title,
-            'pg_encoding'       => $this->config['encoding'],
-            'pg_currency'       => $this->config['currency'],
-            'pg_user_ip'        => request()->ip(),
-            'pg_lifetime'       => 86400,
-            'pg_merchant_id'    => $this->config['merchant_id'],
-            'pg_order_id'       => $paymentId,
-            'pg_result_url'     => route('tenge.approvelink', ['paymentId' => $paymentId]),
+            'pg_amount' => $amount,
+            'pg_check_url' => route('tenge.checklink', ['paymentId' => $paymentId]),
+            'pg_description' => $title,
+            'pg_encoding' => $this->config['encoding'],
+            'pg_currency' => $this->config['currency'],
+            'pg_user_ip' => request()->ip(),
+            'pg_lifetime' => 86400,
+            'pg_merchant_id' => $this->config['merchant_id'],
+            'pg_order_id' => $paymentId,
+            'pg_result_url' => route('tenge.approvelink', ['paymentId' => $paymentId]),
             'pg_request_method' => 'POST',
-            'pg_salt'           => uniqid(),
-            'pg_success_url'    => config('tenge.routes.backlink'),
-            'pg_failure_url'    => config('tenge.routes.failure_backlink'),
-            'pg_testing_mode'   => config('tenge.environment') === 'local' ? 1 : 0,
+            'pg_salt' => uniqid(),
+            'pg_success_url' => config('tenge.routes.backlink'),
+            'pg_failure_url' => config('tenge.routes.failure_backlink'),
+            'pg_testing_mode' => config('tenge.environment') === 'local' ? 1 : 0,
         ];
 
         $url = 'payment.php';

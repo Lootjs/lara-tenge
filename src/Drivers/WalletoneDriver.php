@@ -69,7 +69,7 @@ class WalletoneDriver extends Driver implements DriverInterface
         try {
             (new Client)->post('https://wl.walletone.com/checkout/checkout/Index', [
                 'form_params' => $fields,
-                'on_stats' => function (TransferStats $stats) use (&$url) {
+                'on_stats' => function (TransferStats $stats) use (&$url): void {
                     $url = $stats->getEffectiveUri();
                 },
             ]);
@@ -85,7 +85,7 @@ class WalletoneDriver extends Driver implements DriverInterface
         ]);
     }
 
-    public function cancelPayment($payment, Request $request)
+    public function cancelPayment($payment, Request $request): void
     {
     }
 
