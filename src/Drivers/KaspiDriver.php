@@ -4,17 +4,32 @@ declare(strict_types=1);
 
 namespace Loot\Tenge\Drivers;
 
-class KaspiDriver extends Driver implements DriverInterface
+use Illuminate\Http\Request;
+use Loot\Tenge\TengePayment;
+
+final class KaspiDriver extends Driver implements DriverInterface
 {
-    public function createPayment(): void
+    /**
+     * @inheritDoc
+     */
+    public function createPayment(TengePayment $payment, string $title = null)
     {
+        // TODO: Implement createPayment() method.
     }
 
-    public function cancelPayment(): void
+    /**
+     * @inheritDoc
+     */
+    public function cancelPayment(TengePayment $payment, Request $request)
     {
+        // TODO: Implement cancelPayment() method.
     }
 
-    public function approvePayment(): void
+    /**
+     * @inheritDoc
+     */
+    public function approvePayment(TengePayment $payment, Request $request)
     {
+        // TODO: Implement approvePayment() method.
     }
 }

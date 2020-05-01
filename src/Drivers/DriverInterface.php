@@ -8,12 +8,11 @@ use Loot\Tenge\TengePayment;
 interface DriverInterface
 {
     /**
-     * @param int $paymentId
-     * @param $amount
-     * @param null $title
+     * @param TengePayment $payment
+     * @param string $title
      * @return mixed
      */
-    public function createPayment(int $paymentId, $amount, $title = null);
+    public function createPayment(TengePayment $payment, string $title = null);
 
     /**
      * @param TengePayment $payment
