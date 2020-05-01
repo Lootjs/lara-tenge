@@ -11,31 +11,29 @@ use Loot\Tenge\Drivers\DriverInterface;
 use Loot\Tenge\Hook;
 use Loot\Tenge\TengePayment;
 
-class EpayDriver extends Driver implements DriverInterface
+final class EpayDriver extends Driver implements DriverInterface
 {
-    protected function getURL()
+    /**
+     * @return string|null
+     */
+    protected function getURL(): ?string
     {
         return $this->config['action_url'][config('tenge.environment')];
     }
 
     /**
-     * @param int $paymentId
-     * @param int $amount
-     * @param string $title
-     * @return Fluent
+     * @inheritDoc
      */
-    public function createPayment($paymentId, $amount, $title = null)
+    public function createPayment(TengePayment $payment, string $title = null): Fluent
     {
-        resolve('tenge_logger')->info('before create payment '.$paymentId);
-        TengePayment::insertRecord($paymentId, 'epay', $amount);
-
         $params = http_build_query([
-            'Signed_Order_B64' => (new KKBsign)->process_request($paymentId, $this->config['currency_id'], $amount, $this->config),
-            'email' => 'dcms@gmail.com',
+            'Signed_Order_B64' => (new KKBsign)
+                ->process_request($payment->id, $this->config['currency_id'], $payment->amount, $this->config),
+            'email' => 'laravel@gmail.com',
             'BackLink' => config('tenge.routes.backlink'),
-            'PostLink' => route('tenge.approvelink', ['paymentId' => $paymentId], true),
+            'PostLink' => route('tenge.approvelink', ['paymentId' => $payment->id], true),
             'FailureBackLink' => config('tenge.routes.failure_backlink'),
-            'FailurePostLink' => route('tenge.faillink', ['paymentId' => $paymentId], true),
+            'FailurePostLink' => route('tenge.faillink', ['paymentId' => $payment->id], true),
             //'appendix',
             //'template',
         ]);
@@ -46,23 +44,24 @@ class EpayDriver extends Driver implements DriverInterface
         ]);
     }
 
-    public function cancelPayment($payment, Request $request)
+    /**
+     * @inheritDoc
+     */
+    public function cancelPayment(TengePayment $payment, Request $request): void
     {
+        //
     }
 
     /**
-     * @param TengePayment $payment
-     * @param Request $request
-     * @return int|string
+     * @inheritDoc
      */
-    public function approvePayment($payment, Request $request)
+    public function approvePayment(TengePayment $payment, Request $request)
     {
         //$payment = TengePayment::where('payment_id', $result['ORDER_ORDER_ID'])->first();
-        resolve('tenge_logger')->info('Payment ['.$payment->id.']: before approve', $request->toArray());
 
         if (! $request->filled('response')) {
             $message = 'response field is empty';
-            resolve('tenge_logger')->info($message, $request->all());
+            $this->logger->info($message, $request->all());
 
             return $message;
         }
@@ -99,7 +98,7 @@ class EpayDriver extends Driver implements DriverInterface
 
         if ($error) {
             $prefix = 'Payment ['.$payment->id.']: ';
-            resolve('tenge_logger')->info($prefix.$error, $result);
+            $this->logger->info($prefix.$error, $result);
 
             return 'Error: '.$error;
         }
@@ -107,7 +106,7 @@ class EpayDriver extends Driver implements DriverInterface
         $payment->setApproveStatus();
 
         Hook::trigger('approve.after_validation')->with($payment->payment_id, $request);
-        resolve('tenge_logger')->info('Payment ['.$payment->id.']: was approved', $payment);
+        $this->logger->info('Payment ['.$payment->id.']: after approve', $payment->toArray());
 
         return 0;
     }

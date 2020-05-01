@@ -10,29 +10,25 @@ use Illuminate\Support\Fluent;
 use Loot\Tenge\Hook;
 use Loot\Tenge\TengePayment;
 
-class SpayDriver extends Driver implements DriverInterface
+final class SpayDriver extends Driver implements DriverInterface
 {
     /**
-     * @param int $paymentId
-     * @param int $amount
-     * @param string $title Описание платежа
-     *
-     * @return Fluent|string
+     * @inheritDoc
      */
-    public function createPayment($paymentId, $amount, $title = '')
+    public function createPayment(TengePayment $payment, string $title = null)
     {
-        resolve('tenge_logger')->info('before create payment '.$paymentId);
-        TengePayment::insertRecord($paymentId, 'spay', $amount);
+        resolve('tenge_logger')->info('before create payment '.$payment->id);
+        TengePayment::insertRecord($payment->id, 'spay', $payment->amount);
 
         $fields = [
-            'MERCHANT_ID'             => $this->config['MERCHANT_ID'],
-            'PAYMENT_AMOUNT'          => $amount,
-            'PAYMENT_TYPE'            => $this->config['PAYMENT_TYPE'],
-            'PAYMENT_ORDER_ID'        => $paymentId,
-            'PAYMENT_INFO'            => $title,
-            'PAYMENT_RETURN_URL'      => config('tenge.routes.backlink'),
+            'MERCHANT_ID' => $this->config['MERCHANT_ID'],
+            'PAYMENT_AMOUNT' => $payment->amount,
+            'PAYMENT_TYPE' => $this->config['PAYMENT_TYPE'],
+            'PAYMENT_ORDER_ID' => $payment->id,
+            'PAYMENT_INFO' => $title,
+            'PAYMENT_RETURN_URL' => config('tenge.routes.backlink'),
             'PAYMENT_RETURN_FAIL_URL' => config('tenge.routes.failure_backlink'),
-            'PAYMENT_CALLBACK_URL'    => route('tenge.approvelink', ['paymentId' => $paymentId]),
+            'PAYMENT_CALLBACK_URL' => route('tenge.approvelink', ['paymentId' => $payment->id]),
         ];
 
         foreach ($fields as $name => $val) {
@@ -77,26 +73,26 @@ class SpayDriver extends Driver implements DriverInterface
                 'pay_url' => $response->data->url,
             ]);
         } catch (\Exception $exception) {
-            $message = 'Payment ['.$paymentId.']: '.$exception->getMessage();
-            resolve('tenge_logger')->info($message);
+            $message = 'Payment ['.$payment->id.']: '.$exception->getMessage();
+            $this->logger->info($message);
 
             return $message;
         }
     }
 
-    public function cancelPayment($payment, Request $request)
+    /**
+     * @inheritDoc
+     */
+    public function cancelPayment(TengePayment $payment, Request $request): void
     {
+        //
     }
 
     /**
-     * @param TengePayment $payment
-     * @param Request $request
-     * @return int|string
+     * @inheritDoc
      */
-    public function approvePayment($payment, Request $request)
+    public function approvePayment(TengePayment $payment, Request $request)
     {
-        resolve('tenge_logger')->info('before approve payment '.$payment->id, $request->all());
-
         $values = $this->getValues($request->all());
 
         $signature = base64_encode(pack('H*', md5($values.$this->config['secret_key'])));
@@ -104,16 +100,20 @@ class SpayDriver extends Driver implements DriverInterface
         if ($request->input('WMI_ORDER_STATE') == 'Accepted' && $request->input('WMI_SIGNATURE') == $signature) {
             Hook::trigger('approve.after_validation')->with($payment->payment_id, $request);
 
-            resolve('tenge_logger')->info('Payment ['.$payment->id.']: was approved', $payment);
+            $this->logger->info('Payment ['.$payment->id.']: was approved', $payment->toArray());
 
             return 'RESULT=OK';
         }
 
-        resolve('tenge_logger')->info('Payment ['.$payment->id.']: signature doesnt match', $request->all());
+        $this->logger->info('Payment ['.$payment->id.']: signature doesnt match', $request->all());
 
         return 'RESULT=RETRY&DESCRIPTION=Сервер временно недоступен';
     }
 
+    /**
+     * @param array $input
+     * @return string
+     */
     public function getValues(array $input): string
     {
         $params = [];

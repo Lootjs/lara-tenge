@@ -9,29 +9,29 @@ use Illuminate\Support\Fluent;
 use Loot\Tenge\Hook;
 use Loot\Tenge\TengePayment;
 
-class PayboxDriver extends Driver implements DriverInterface
+final class PayboxDriver extends Driver implements DriverInterface
 {
-    public function createPayment($paymentId, $amount, $title = '')
+    /**
+     * @inheritDoc
+     */
+    public function createPayment(TengePayment $payment, string $title = null): Fluent
     {
-        resolve('tenge_logger')->info('Payment ['.$paymentId.']: before create payment');
-        $payment = TengePayment::insertRecord($paymentId, 'paybox', $amount);
-
         $params = [
-            'pg_amount'         => $amount,
-            'pg_check_url'      => route('tenge.checklink', ['paymentId' => $paymentId]),
-            'pg_description'    => $title,
-            'pg_encoding'       => $this->config['encoding'],
-            'pg_currency'       => $this->config['currency'],
-            'pg_user_ip'        => request()->ip(),
-            'pg_lifetime'       => 86400,
-            'pg_merchant_id'    => $this->config['merchant_id'],
-            'pg_order_id'       => $paymentId,
-            'pg_result_url'     => route('tenge.approvelink', ['paymentId' => $paymentId]),
+            'pg_amount' => $payment->amount,
+            'pg_check_url' => route('tenge.checklink', ['paymentId' => $payment->id]),
+            'pg_description' => $title,
+            'pg_encoding' => $this->config['encoding'],
+            'pg_currency' => $this->config['currency'],
+            'pg_user_ip' => request()->ip(),
+            'pg_lifetime' => 86400,
+            'pg_merchant_id' => $this->config['merchant_id'],
+            'pg_order_id' => $payment->id,
+            'pg_result_url' => route('tenge.approvelink', ['paymentId' => $payment->id]),
             'pg_request_method' => 'POST',
-            'pg_salt'           => uniqid(),
-            'pg_success_url'    => config('tenge.routes.backlink'),
-            'pg_failure_url'    => config('tenge.routes.failure_backlink'),
-            'pg_testing_mode'   => config('tenge.environment') === 'local' ? 1 : 0,
+            'pg_salt' => uniqid(),
+            'pg_success_url' => config('tenge.routes.backlink'),
+            'pg_failure_url' => config('tenge.routes.failure_backlink'),
+            'pg_testing_mode' => config('tenge.environment') === 'local' ? 1 : 0,
         ];
 
         $url = 'payment.php';
@@ -55,25 +55,21 @@ class PayboxDriver extends Driver implements DriverInterface
     }
 
     /**
-     * @param TengePayment $payment
-     * @param Request $request
-     * @return string
+     * @inheritDoc
      */
-    public function cancelPayment($payment, Request $request)
+    public function cancelPayment(TengePayment $payment, Request $request): string
     {
         $payment->setCanceledStatus();
         $message = 'Payment ['.$payment->id.']: fail transaction';
-        resolve('tenge_logger')->info($message, $payment);
+        $this->logger->info($message, $payment->toArray());
 
         return $message;
     }
 
     /**
-     * @param TengePayment $payment
-     * @param Request $request
-     * @return string
+     * @inheritDoc
      */
-    public function checkPayment($payment, Request $request)
+    public function checkPayment(TengePayment $payment, Request $request): string
     {
         if ($payment->status === TengePayment::STATUS_RECEIVED) {
             return 'OK';
@@ -83,22 +79,18 @@ class PayboxDriver extends Driver implements DriverInterface
     }
 
     /**
-     * @param TengePayment $payment
-     * @param Request $request
-     * @return string
+     * @inheritDoc
      */
-    public function approvePayment($payment, Request $request)
+    public function approvePayment(TengePayment $payment, Request $request): string
     {
-        resolve('tenge_logger')->info('Payment ['.$payment->id.']: before approve payment ', $request->all());
-
         if ($request->input('pg_result') == 0) {
-            resolve('tenge_logger')->info('Payment ['.$payment->id.']: failed transaction', $request->all());
+            $this->logger->info('Payment ['.$payment->id.']: failed transaction', $request->all());
 
             return 'failed transaction';
         }
 
         if ($request->input('pg_sig') != $payment->data['pg_sig']) {
-            resolve('tenge_logger')->info('Payment ['.$payment->id.']: signature doesnt match', $request->all());
+            $this->logger->info('Payment ['.$payment->id.']: signature doesnt match', $request->all());
 
             return 'signature doesnt match';
         }
@@ -106,7 +98,7 @@ class PayboxDriver extends Driver implements DriverInterface
         Hook::trigger('approve.after_validation')->with($payment->payment_id, $request);
 
         $payment->setApproveStatus();
-        resolve('tenge_logger')->info('Payment ['.$payment->id.']: was approved', $payment);
+        $this->logger->info('Payment ['.$payment->id.']: was approved', $payment->toArray());
 
         return 'OK';
     }

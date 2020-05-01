@@ -6,12 +6,10 @@ use Illuminate\Support\ServiceProvider as BaseServiceProvider;
 
 class ServiceProvider extends BaseServiceProvider
 {
-    protected $options;
-
     /**
      * Bootstrap the application services.
      */
-    public function boot()
+    public function boot(): void
     {
         $this->publishes([
             __DIR__.'/../config/tenge.php' => config_path('tenge.php'),
@@ -27,9 +25,8 @@ class ServiceProvider extends BaseServiceProvider
     /**
      * Register the application services.
      */
-    public function register()
+    public function register(): void
     {
-        $this->app->bind('tenge', Tenge::class);
         $this->app->singleton('tenge_logger', function () {
             return (new Logger)->getManager();
         });

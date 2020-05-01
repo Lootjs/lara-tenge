@@ -64,7 +64,7 @@ class XMLParser
         return $this->xarray;
     }
 
-    public function tag_open($parser, $tag, $attributes)
+    public function tag_open($parser, $tag, $attributes): void
     {
         $this->lasttag = $tag;
         $this->xarray['TAG_'.$tag] = $tag;
@@ -75,13 +75,13 @@ class XMLParser
         }
     }
 
-    public function cdata($parser, $cdata)
+    public function cdata($parser, $cdata): void
     {
         $tag = $this->lasttag;
         $this->xarray[$tag.'_CHARDATA'] = $cdata;
     }
 
-    public function tag_close($parser, $tag)
+    public function tag_close($parser, $tag): void
     {
     }
 }

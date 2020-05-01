@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Loot\Tenge\Drivers;
 
+use Loot\Tenge\Logger;
+
 abstract class Driver implements DriverInterface
 {
     /**
@@ -13,8 +15,14 @@ abstract class Driver implements DriverInterface
      */
     public $config;
 
-    public function __construct($config)
+    /**
+     * @var \Monolog\Logger $logger
+     */
+    protected $logger;
+
+    public function __construct($config, Logger $logger)
     {
+        $this->logger = $logger;
         $this->config = $config;
     }
 }

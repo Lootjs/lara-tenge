@@ -11,16 +11,16 @@ use Illuminate\Support\Fluent;
 use Loot\Tenge\Hook;
 use Loot\Tenge\TengePayment;
 
-class ProstoplategDriver extends Driver implements DriverInterface
+final class ProstoplategDriver extends Driver implements DriverInterface
 {
-    public function createPayment($paymentId, $amount, $title = '')
+    /**
+     * @inheritDoc
+     */
+    public function createPayment(TengePayment $payment, string $title = null)
     {
-        resolve('tenge_logger')->info('before create payment '.$paymentId);
-        TengePayment::insertRecord($paymentId, 'prostoplateg', $amount);
-
         (new Client)->post($this->config['pay_gate_url'], [
             'form_params' => $this->generateFields(...func_get_args()),
-            'on_stats' => function (TransferStats $stats) use (&$url) {
+            'on_stats' => function (TransferStats $stats) use (&$url): void {
                 $url = $stats->getEffectiveUri();
             },
         ]);
@@ -31,23 +31,22 @@ class ProstoplategDriver extends Driver implements DriverInterface
     }
 
     /**
-     * @param TengePayment $payment
-     * @param Request $request
-     * @return string
+     * @inheritDoc
      */
-    public function cancelPayment($payment, Request $request)
+    public function cancelPayment(TengePayment $payment, Request $request)
     {
         $payment->setCanceledStatus();
         $message = 'Payment ['.$payment->id.']: fail transaction';
-        resolve('tenge_logger')->info($message, $payment);
+        $this->logger->info($message, $payment->toArray());
 
         return $message;
     }
 
-    public function approvePayment($payment, Request $request)
+    /**
+     * @inheritDoc
+     */
+    public function approvePayment(TengePayment $payment, Request $request): string
     {
-        resolve('tenge_logger')->info('before approve payment '.$payment->id, $request->all());
-
         $uniq_paygate = $_POST['RETURN_UNIQ_ID'] + 0;
         $merchant = $_POST['RETURN_MERCHANT'] + 0;
         $serversign = $_POST['RETURN_HASH'];
@@ -71,7 +70,7 @@ class ProstoplategDriver extends Driver implements DriverInterface
         if ($shopsign != $serversign) {
             $msgerror = "При проверке транзакции хеши не совпадают\n hash = $shopsign\n server_hash = $serversign\n";
 
-            resolve('tenge_logger')->info($msgerror, $request->all());
+            $this->logger->info($msgerror, $request->all());
             exit;
         }
 
@@ -80,7 +79,13 @@ class ProstoplategDriver extends Driver implements DriverInterface
         return 'OK';
     }
 
-    protected function generateFields($paymentId, $amount, $title = '')
+    /**
+     * @param int $paymentId
+     * @param int $amount
+     * @param string $title
+     * @return array
+     */
+    protected function generateFields(int $paymentId, int $amount, string $title = ''): array
     {
         $textcoding = $this->config['text_coding'];
         $linexmlhead = chr(60)."?xml version=\"1.0\" encoding=\"$textcoding\"?".chr(62);

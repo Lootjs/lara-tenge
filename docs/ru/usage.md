@@ -7,7 +7,7 @@ $amount = 2000;
 $driver = 'epay';
 $title = 'Описание платежа, опционально';
 
-$paymentService = Loot\Tenge\Tenge::with($driver)->createPayment($paymentId, $amount, $title);
+$paymentService = Loot\Tenge\Tenge($driver)->initPayment($paymentId, $amount, $title);
 ```
 При успешном выполнении, в $paymentService будет ссылка на страницу оплаты:
 

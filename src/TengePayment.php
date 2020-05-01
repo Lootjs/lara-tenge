@@ -38,7 +38,7 @@ class TengePayment extends Model
         'failed_at',
     ];
 
-    public function setApproveStatus()
+    public function setApproveStatus(): void
     {
         $this->update([
             'status' => self::STATUS_SETTLED,
@@ -46,7 +46,7 @@ class TengePayment extends Model
         ]);
     }
 
-    public function setCanceledStatus()
+    public function setCanceledStatus(): void
     {
         $this->update([
             'status' => self::STATUS_CANCELLED,

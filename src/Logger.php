@@ -22,7 +22,7 @@ class Logger
         );
     }
 
-    private function getManager()
+    public function getManager()
     {
         return $this->manager;
     }

@@ -4,17 +4,33 @@ declare(strict_types=1);
 
 namespace Loot\Tenge\Drivers;
 
-class CyberplatDriver extends Driver implements DriverInterface
+use Illuminate\Http\Request;
+use Loot\Tenge\TengePayment;
+
+final class CyberplatDriver extends Driver implements DriverInterface
 {
-    public function createPayment()
+
+    /**
+     * @inheritDoc
+     */
+    public function createPayment(TengePayment $payment, string $title = null)
     {
+        // TODO: Implement createPayment() method.
     }
 
-    public function cancelPayment()
+    /**
+     * @inheritDoc
+     */
+    public function cancelPayment(TengePayment $payment, Request $request)
     {
+        // TODO: Implement cancelPayment() method.
     }
 
-    public function approvePayment()
+    /**
+     * @inheritDoc
+     */
+    public function approvePayment(TengePayment $payment, Request $request)
     {
+        // TODO: Implement approvePayment() method.
     }
 }

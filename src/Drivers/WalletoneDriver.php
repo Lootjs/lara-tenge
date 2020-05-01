@@ -12,24 +12,17 @@ use Illuminate\Support\Fluent;
 use Loot\Tenge\Hook;
 use Loot\Tenge\TengePayment;
 
-class WalletoneDriver extends Driver implements DriverInterface
+final class WalletoneDriver extends Driver implements DriverInterface
 {
     /**
-     * @param int $paymentId
-     * @param int $amount
-     * @param string $title Описание платежа
-     *
-     * @return Fluent|string
+     * @inheritDoc
      */
-    public function createPayment($paymentId, $amount, $title = '')
+    public function createPayment(TengePayment $payment, string $title = null): Fluent
     {
-        resolve('tenge_logger')->info('before create payment '.$paymentId);
-        TengePayment::insertRecord($paymentId, 'walletone', $amount);
-
         $fields = [
             'WMI_MERCHANT_ID' => $this->config['WMI_MERCHANT_ID'],
-            'WMI_PAYMENT_AMOUNT' => $amount,
-            'WMI_PAYMENT_NO' => $paymentId,
+            'WMI_PAYMENT_AMOUNT' => $payment->amount,
+            'WMI_PAYMENT_NO' => $payment->id,
             'WMI_CURRENCY_ID' => $this->config['WMI_CURRENCY_ID'],
             'WMI_DESCRIPTION' => 'BASE64:'.base64_encode($title),
             'WMI_SUCCESS_URL' => config('tenge.routes.backlink'),
@@ -69,13 +62,13 @@ class WalletoneDriver extends Driver implements DriverInterface
         try {
             (new Client)->post('https://wl.walletone.com/checkout/checkout/Index', [
                 'form_params' => $fields,
-                'on_stats' => function (TransferStats $stats) use (&$url) {
+                'on_stats' => function (TransferStats $stats) use (&$url): void {
                     $url = $stats->getEffectiveUri();
                 },
             ]);
         } catch (ServerException $exception) {
-            $message = 'Payment '.$paymentId.': fail with code 500, check your key and merchant id';
-            resolve('tenge_logger')->info($message);
+            $message = 'Payment '.$payment->id.': fail with code 500, check your key and merchant id';
+            $this->logger->info($message);
 
             return $message;
         }
@@ -85,36 +78,39 @@ class WalletoneDriver extends Driver implements DriverInterface
         ]);
     }
 
-    public function cancelPayment($payment, Request $request)
+    /**
+     * @inheritDoc
+     */
+    public function cancelPayment(TengePayment $payment, Request $request): void
     {
+        //
     }
 
     /**
-     * @param TengePayment $payment
-     * @param Request $request
-     * @return int|string
+     * @inheritDoc
      */
-    public function approvePayment($payment, Request $request)
+    public function approvePayment(TengePayment $payment, Request $request)
     {
-        resolve('tenge_logger')->info('before approve payment '.$payment->id, $request->all());
-
         $values = $this->getValues($request->all());
-
         $signature = base64_encode(pack('H*', md5($values.$this->config['key'])));
 
         if ($request->input('WMI_ORDER_STATE') == 'Accepted' && $request->input('WMI_SIGNATURE') == $signature) {
             Hook::trigger('approve.after_validation')->with($payment->payment_id, $request);
 
-            resolve('tenge_logger')->info('Payment ['.$payment->id.']: was approved', $payment);
+            resolve('tenge_logger')->info('Payment ['.$payment->id.']: after approve', $payment);
 
             return 'WMI_RESULT=OK';
         }
 
-        resolve('tenge_logger')->info('Payment ['.$payment->id.']: signature doesnt match', $request->all());
+        $this->logger->info('Payment ['.$payment->id.']: signature doesnt match', $request->all());
 
         return 'WMI_RESULT=RETRY&WMI_DESCRIPTION=Сервер временно недоступен';
     }
 
+    /**
+     * @param array $input
+     * @return string
+     */
     public function getValues(array $input): string
     {
         $params = [];

@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace Loot\Tenge;
 
-use Illuminate\Support\Str;
-
 class Hook
 {
     /**
@@ -48,7 +46,7 @@ class Hook
 
     private function isStaticMethod(string $hook): bool
     {
-        return Str::contains($hook, '::');
+        return strpos($hook, '::') !== false;
     }
 
     private function parseStaticMethod(string $hook): array
@@ -73,7 +71,7 @@ class Hook
         return [$class, $method];
     }
 
-    public function nullResolver(...$args)
+    public function nullResolver(...$args): void
     {
         //
     }
